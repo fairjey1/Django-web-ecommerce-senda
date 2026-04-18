@@ -1,0 +1,10 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Internal Server Error - {{ site_config.site_name }}{% endblock %}
+
+{% block content %}
+    <section>
+        <h2>Ups! Algo salió mal.</h2>
+        <p>Estamos experimentando un problema en este momento. Por favor, intenta nuevamente más tarde o regresa a la <a href="{% url 'core:home' %}">página de inicio</a>.</p>
+    </section>
+{% endblock content %}

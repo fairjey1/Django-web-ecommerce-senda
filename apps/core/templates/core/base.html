@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_config.site_name }}{% endblock %}</title>
+</head>
+<body>
+
+    {% include 'core/navbar.html' %}
+
+    <main>
+        {% block content %}
+        {% endblock content %}
+    </main>
+
+    {% include 'core/footer.html' %}
+
+</body>
+</html>

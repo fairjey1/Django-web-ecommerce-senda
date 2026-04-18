@@ -1,0 +1,10 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Página No Encontrada - {{ site_config.site_name }}{% endblock %}
+
+{% block content %}
+    <section>
+        <h2>¡Uy! Parece que te perdiste.</h2>
+        <p>La página que buscas no existe, pero puedes regresar a la <a href="{% url 'core:home' %}">página de inicio</a>.</p>
+    </section>
+{% endblock content %}
