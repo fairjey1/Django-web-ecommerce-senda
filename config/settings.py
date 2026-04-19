@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.core',
+    'apps.users',
 ]
 
 MIDDLEWARE = [
@@ -121,3 +122,25 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+AUTH_USER_MODEL = 'users.CustomUser'
+LANGUAGE_CODE = 'es-ar' 
+TIME_ZONE = 'America/Argentina/Buenos_Aires' 
+
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+# configuracion email
+EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+
+ANYMAIL = {
+    "RESEND_API_KEY": os.getenv('RESEND_API_KEY'), 
+}
+EMAIL_HOST = 'smtp.resend.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'resend' 
+DEFAULT_FROM_EMAIL = "onboarding@resend.dev"
+EMAIL_RECIPIENT = os.getenv('EMAIL_RECIPIENT')
