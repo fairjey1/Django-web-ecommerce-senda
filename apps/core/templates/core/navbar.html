@@ -7,6 +7,15 @@
             <li><a href="{% url 'core:about' %}">Sobre Nosotros</a></li>
             <li><a href="#">Carrito</a></li>
             <li><a href="{% url 'users:acceso_mayoristas' %}">Acceso Mayoristas</a></li>
+                {% if user.is_authenticated %}
+                    <form action="{% url 'users:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">Cerrar Sesión</button>
+                    </form>
+                    <li>Hola, {{ user.first_name }}!</li>
+                {% else %}
+                    <li><a href="{% url 'users:login' %}">Iniciar Sesión</a></li>
+                {% endif %}
         </ul>
     </nav>
 </header>

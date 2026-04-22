@@ -42,3 +42,6 @@ class RegistroMayoristaForm(UserCreationForm):
         if commit:
             user.save()
         return user
+class CustomLoginForm(forms.Form):
+    email = forms.EmailField(label='Correo Electrónico', max_length=254, widget=forms.EmailInput(attrs={'autofocus': True}))
+    password = forms.CharField(label='Contraseña', strip=False, widget=forms.PasswordInput)
