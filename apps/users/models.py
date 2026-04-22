@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 class CustomUser(AbstractUser):
 
     #datos sobre el negocio mayorista
-
+    
     telefono = models.CharField(default='', max_length=20, blank=True)
     instagram = models.CharField(default='', max_length=100, blank=True)
     facebook = models.CharField(default='', max_length=100, blank=True)

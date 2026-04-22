@@ -27,16 +27,16 @@
     </section>
 
     <hr>
-
-    <section id="formulario-registro">
-        <h2>Formulario de Solicitud de Cuenta</h2>
-        <form method="POST">
-            {% csrf_token %} {{ form.as_p }} <button type="submit">Enviar Solicitud de Registro</button>
-        </form>
-    </section>
-
-    <section id="inicio-sesion">
-        <p>¿Ya tienes una cuenta mayorista aprobada? <a href="{% url 'users:login' %}">Inicia sesión aquí</a>.</p>
-    </section>
+    {% if not user.is_authenticated %}
+        <section id="formulario-registro">
+            <h2>Formulario de Solicitud de Cuenta</h2>
+            <form method="POST">
+                {% csrf_token %} {{ form.as_p }} <button type="submit">Enviar Solicitud de Registro</button>
+            </form>
+        </section>
+        <section id="inicio-sesion">
+            <p>¿Ya tienes una cuenta mayorista aprobada? <a href="{% url 'users:login' %}">Inicia sesión aquí</a>.</p>
+        </section>
+    {% endif %}
 </main>
 {% endblock %}

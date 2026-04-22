@@ -62,7 +62,8 @@ class AccesoMayoristasView(CreateView):
 class CustomLoginView(LoginView):
     template_name = 'users/login.html'
     redirect_authenticated_user = True
-    success_url = reverse_lazy('inicio')
+    next_page = reverse_lazy('core:home')
+    form_class = CustomLoginForm
 
     # requiere que el usuario este aprobado para poder loguearse
     def form_valid(self, form):

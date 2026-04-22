@@ -3,9 +3,12 @@
 {% block title %}Iniciar Sesión | {{site_config.site_name}} {% endblock %}
 
 {% block content %}
-    <h2>Iniciar Sesión</h2>
-    
-    <form method="post">
-        {% csrf_token %} {{ form.as_p }} <button type="submit">Entrar</button>
-    </form>
+<h2>Iniciar Sesión</h2>
+<form method="post">
+    {% csrf_token %}
+    <!--Mostrar email en lugar de username-->
+    {{ form.as_p }}
+    <button type="submit">Iniciar Sesión</button>
+</form>
+
 {% endblock content %}

@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from .models import CustomUser
 
 class RegistroMayoristaForm(UserCreationForm):
@@ -42,6 +42,13 @@ class RegistroMayoristaForm(UserCreationForm):
         if commit:
             user.save()
         return user
-class CustomLoginForm(forms.Form):
-    email = forms.EmailField(label='Correo Electrónico', max_length=254, widget=forms.EmailInput(attrs={'autofocus': True}))
-    password = forms.CharField(label='Contraseña', strip=False, widget=forms.PasswordInput)
+    
+class CustomLoginForm(AuthenticationForm):
+
+    username = forms.EmailField(
+        label='Correo Electrónico', 
+        max_length=254, 
+        widget=forms.EmailInput(attrs={'autofocus': True})
+    )
+     
+
