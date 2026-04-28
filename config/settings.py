@@ -137,10 +137,9 @@ EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
 ANYMAIL = {
     "RESEND_API_KEY": os.getenv('RESEND_API_KEY'), 
 }
-EMAIL_HOST = 'smtp.resend.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'resend' 
-DEFAULT_FROM_EMAIL = "onboarding@resend.dev"
+# Remitente estricto obligatorio por el plan gratuito de Resend
+DEFAULT_FROM_EMAIL = "Acme <onboarding@resend.dev>"
+
+# El correo al que llegarán los avisos
 EMAIL_RECIPIENT = os.getenv('EMAIL_RECIPIENT')

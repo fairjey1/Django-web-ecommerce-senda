@@ -76,3 +76,4 @@ class CustomLoginView(LoginView):
         
 class CustomLogoutView(LogoutView):
     next_page = reverse_lazy('core:home')  # Redirige a la página de inicio después de cerrar sesión
+

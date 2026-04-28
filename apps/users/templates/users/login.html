@@ -10,5 +10,8 @@
     {{ form.as_p }}
     <button type="submit">Iniciar Sesión</button>
 </form>
+<!--Si no tiene cuenta -->
+<p>¿No tienes una cuenta mayorista? <a href="{% url 'users:acceso_mayoristas' %}">Regístrate aquí</a></p>
+<p><a href="{% url 'users:password_reset' %}">¿Olvidaste tu contraseña?</a></p>
 
 {% endblock content %}
