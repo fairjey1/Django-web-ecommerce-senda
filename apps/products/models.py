@@ -20,6 +20,17 @@ class Marca(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+class Color(models.Model):
+    nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del Color")
+    codigo_hex = models.CharField(max_length=7, blank=True, null=True, verbose_name="Código Hexadecimal")
+
+    class Meta:
+        verbose_name = "Color"
+        verbose_name_plural = "Colores"
+
+    def __str__(self):
+        return self.nombre
 
 class Producto(models.Model):
     nombre = models.CharField(max_length=200, verbose_name="Nombre del Producto")
@@ -62,12 +73,13 @@ class VarianteProducto(models.Model):
     ]
 
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='variantes', verbose_name="Producto Base")
+    color = models.ForeignKey(Color, default=None, null=True, on_delete=models.PROTECT, related_name='variantes', verbose_name="Color")
     talle = models.CharField(max_length=5, choices=OPCIONES_TALLE, verbose_name="Talle")
     
+    sku = models.CharField(max_length=50, default=None, null=True, unique=True, verbose_name="SKU / Código de Artículo")
 
     cantidad_stock = models.PositiveIntegerField(default=0, verbose_name="Cantidad en Stock")
     
-    # Datos de Logística 
     peso_kg = models.DecimalField(max_digits=5, decimal_places=2, default=0.0, verbose_name="Peso (kg)")
     largo_cm = models.DecimalField(max_digits=5, decimal_places=2, default=0.0, verbose_name="Largo (cm)")
     ancho_cm = models.DecimalField(max_digits=5, decimal_places=2, default=0.0, verbose_name="Ancho (cm)")
@@ -76,7 +88,7 @@ class VarianteProducto(models.Model):
     class Meta:
         verbose_name = "Variante de Producto"
         verbose_name_plural = "Variantes de Productos"
-        unique_together = ('producto', 'talle')
+        unique_together = ('producto', 'talle', 'color') 
 
     def __str__(self):
-        return f"{self.producto.nombre} - Talle {self.talle}"
+        return f"{self.sku} - {self.producto.nombre} - {self.color.nombre} - Talle {self.talle}" 
