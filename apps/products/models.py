@@ -25,8 +25,9 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=200, verbose_name="Nombre del Producto")
     descripcion = models.TextField(verbose_name="Descripción")
     
-    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, related_name='productos', verbose_name="Categoría")
+    categorias = models.ManyToManyField(Categoria, related_name='productos', verbose_name="Categorías")
     marca = models.ForeignKey(Marca, on_delete=models.SET_NULL, null=True, related_name='productos', verbose_name="Marca")
+    genero = models.CharField(max_length=10, choices=[('Hombre', 'Hombre'), ('Mujer', 'Mujer'), ('Unisex', 'Unisex')], verbose_name="Género")
     
     precio_minorista = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio Minorista")
     precio_mayorista = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio Mayorista")
