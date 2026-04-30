@@ -1,6 +1,9 @@
 from django.db import models
 
 class Genero(models.Model):
+    '''
+    Genero representa el género al que está dirigido un producto, como "Hombre", "Mujer", "Unisex", etc.
+    '''
     nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del Género")
     slug = models.SlugField(max_length=50, unique=True, blank=True)
 
@@ -12,6 +15,11 @@ class Genero(models.Model):
         return self.nombre
 
 class Categoria(models.Model):
+    '''
+    Categoria es simplemente una categoria de producto. La categoria puede ser una categoria padre o una subcategoria. 
+    Si es una categoria padre, el campo categoria_padre será null. 
+    Si es una subcategoria, el campo categoria_padre apuntará a la categoria padre correspondiente.
+    '''
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre de la Categoría")
     slug = models.SlugField(max_length=100, unique=True, blank=True)
     categoria_padre = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='subcategorias', verbose_name="Categoría Padre")
@@ -26,6 +34,7 @@ class Categoria(models.Model):
         return self.nombre
 
 class Marca(models.Model):
+    '''Marca representa la marca o fabricante de un producto, como "Nike", "Adidas", "Apple", etc.'''
     nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre de la Marca")
 
     class Meta:
@@ -36,6 +45,7 @@ class Marca(models.Model):
         return self.nombre
     
 class Color(models.Model):
+    '''Color representa un color disponible para los productos, con su nombre y código hexadecimal opcional.'''
     nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del Color")
     codigo_hex = models.CharField(max_length=7, blank=True, null=True, verbose_name="Código Hexadecimal")
 
@@ -47,6 +57,9 @@ class Color(models.Model):
         return self.nombre
 
 class Producto(models.Model):
+    '''
+    Producto es la entidad principal que representa un artículo que se vende en la tienda. Puede tener múltiples variantes (diferentes colores, talles, etc.) pero comparte la misma información básica como nombre, descripción, categoría, marca y precios.
+    '''
     nombre = models.CharField(max_length=200, verbose_name="Nombre del Producto")
     descripcion = models.TextField(null=True, blank=True, verbose_name="Descripción")
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True, verbose_name="Imagen Principal")
@@ -74,6 +87,9 @@ class Producto(models.Model):
         return self.nombre
 
 class VarianteProducto(models.Model):
+    '''
+    VarianteProducto representa una versión específica de un producto base, con atributos como color, talle, SKU, cantidad en stock y dimensiones. Cada variante está vinculada a un producto base y puede tener su propia información de inventario y logística.
+    '''
     # (base de datos, human readable)
     '''OPCIONES_TALLE = [
         ('XS', 'Extra Small'),
