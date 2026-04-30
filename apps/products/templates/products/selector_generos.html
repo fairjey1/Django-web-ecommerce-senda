@@ -1,0 +1,21 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1>Bienvenido a nuestra tienda</h1>
+    <p>Selecciona una sección para comenzar a navegar:</p>
+</div>
+
+<div class="generos-container">
+    {% for g in generos %}
+        <div class="genero-card">
+            <h3>{{ g }}</h3>
+            <a href="{% url 'products:genero_detalle' g %}" class="btn-primary">
+                Ver catálogo
+            </a>
+        </div>
+    {% empty %}
+        <p class="empty-message">No hay géneros cargados en el sistema.</p>
+    {% endfor %}
+</div>
+{% endblock %}

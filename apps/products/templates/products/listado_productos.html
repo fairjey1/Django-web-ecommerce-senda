@@ -1,0 +1,78 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<nav class="breadcrumbs">
+    <a href="{% url 'products:catalogo_generos' %}">Inicio</a> / 
+    <a href="{% url 'products:genero_detalle' genero %}">{{ genero }}</a> / 
+    {{ categoria.nombre }}
+</nav>
+
+<div class="header-productos">
+    <h1 class="page-title">{{ categoria.nombre }} de {{ genero }}</h1>
+    
+    <form method="GET" action="" class="form-ordenar">
+        <label for="orden">Ordenar por:</label>
+        <select name="orden" id="orden" onchange="this.form.submit()">
+            <option value="recientes" {% if orden_actual == 'recientes' %}selected{% endif %}>Más recientes</option>
+            <option value="precio_asc" {% if orden_actual == 'precio_asc' %}selected{% endif %}>Menor precio</option>
+            <option value="precio_desc" {% if orden_actual == 'precio_desc' %}selected{% endif %}>Mayor precio</option>
+        </select>
+    </form>
+</div>
+
+{% if subcategorias %}
+    <div class="filtros-subcategorias">
+        <strong>Filtros:</strong>
+        {% for sub in subcategorias %}
+            <a href="{% url 'products:categoria_por_genero' genero sub.slug %}" class="badge-filtro">
+                {{ sub.nombre }}
+            </a>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="productos-grid">
+    {% for producto in productos %}
+        <div class="producto-card">
+            
+            <div class="producto-imagen-container">
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="producto-img">
+                {% else %}
+                    <div class="producto-img-placeholder">Sin Foto</div>
+                {% endif %}
+            </div>
+
+            <div class="producto-info">
+                <p class="producto-marca"><small>{{ producto.marca.nombre }}</small></p>
+                <h3 class="producto-nombre">{{ producto.nombre }}</h3>
+
+                <div class="producto-precios">
+                    
+                    {% if request.user.is_authenticated and request.user.esta_aprobado %}
+                        <span class="badge-mayorista">Mayorista</span>
+                        
+                        {% if producto.precio_promocional_mayorista %}
+                            <p class="precio-tachado">${{ producto.precio_mayorista }}</p>
+                            <p class="precio-promocional">${{ producto.precio_promocional_mayorista }}</p>
+                        {% else %}
+                            <p class="precio-final">${{ producto.precio_mayorista }}</p>
+                        {% endif %}
+                    
+                    {% else %}
+                        {% if producto.precio_promocional_minorista %}
+                            <p class="precio-tachado">${{ producto.precio_minorista }}</p>
+                            <p class="precio-promocional">${{ producto.precio_promocional_minorista }}</p>
+                        {% else %}
+                            <p class="precio-final">${{ producto.precio_minorista }}</p>
+                        {% endif %}
+                    {% endif %}
+
+                </div>
+                </div>
+        </div>
+    {% empty %}
+        <p class="empty-message">No encontramos productos con estos filtros.</p>
+    {% endfor %}
+</div>
+{% endblock %}

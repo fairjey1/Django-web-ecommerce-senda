@@ -1,11 +1,19 @@
 from django.contrib import admin
-from .models import Categoria, Marca, Color, Producto, VarianteProducto
+from .models import Categoria, Genero, Marca, Color, Producto, VarianteProducto
+
+@admin.register(Genero)
+class GeneroAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'slug')
+    prepopulated_fields = {'slug': ('nombre',)}
 
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'slug')
+    list_display = ('nombre', 'categoria_padre', 'slug')
+    list_filter = ('categoria_padre',)
     prepopulated_fields = {'slug': ('nombre',)}
-    search_fields = ('nombre',)
+    search_fields = ('nombre', 'categoria_padre__nombre')
+    ordering = ('categoria_padre__nombre', 'nombre')
+
 
 @admin.register(Marca)
 class MarcaAdmin(admin.ModelAdmin):
@@ -24,19 +32,19 @@ class VarianteProductoInline(admin.TabularInline):
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'marca', 'genero', 'precio_minorista', 'precio_mayorista', 'esta_activo')
-    list_filter = ('esta_activo', 'genero', 'marca', 'categorias')
+    list_display = ('nombre', 'marca', 'precio_minorista', 'precio_mayorista', 'esta_activo')
+    list_filter = ('esta_activo', 'marca', 'categorias', 'generos')
     search_fields = ('nombre', 'descripcion', 'marca__nombre')
-    filter_horizontal = ('categorias',)
-    
+    filter_horizontal = ('categorias', 'generos')
+
     inlines = [VarianteProductoInline]
 
     fieldsets = (
         ('Información Principal', {
-            'fields': ('nombre', 'descripcion', 'marca', 'genero', 'categorias')
+            'fields': ('nombre', 'descripcion', 'marca', 'categorias', 'generos')
         }),
         ('Gestión de Precios', {
-            'fields': ('precio_minorista', 'precio_mayorista', 'precio_promocional'),
+            'fields': ('precio_minorista', 'precio_mayorista', 'precio_promocional_minorista', 'precio_promocional_mayorista'),
             'description': 'Los precios mayoristas solo serán visibles para usuarios aprobados.'
         }),
         ('Multimedia', {

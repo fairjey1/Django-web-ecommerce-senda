@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<nav class="breadcrumbs">
+    <a href="{% url 'products:catalogo_generos' %}">Inicio</a> / {{ genero }}
+</nav>
+
+<h1 class="page-title">Categorías de {{ genero }}</h1>
+
+<ul class="categorias-list">
+    {% for cat in categorias %}
+        <li class="categoria-item">
+            <h3 class="categoria-title">
+                <a href="{% url 'products:categoria_por_genero' genero cat.slug %}">
+                    {{ cat.nombre }}
+                </a>
+            </h3>
+            
+            {% if cat.subcategorias.all %}
+                <small class="subcategorias-info">
+                    Incluye: 
+                    {% for sub in cat.subcategorias.all %}
+                        {{ sub.nombre }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </small>
+            {% endif %}
+        </li>
+    {% empty %}
+        <p class="empty-message">Aún no hay productos disponibles para este género.</p>
+    {% endfor %}
+</ul>
+{% endblock %}
