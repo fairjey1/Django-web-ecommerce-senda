@@ -75,7 +75,7 @@ class Producto(models.Model):
 
 class VarianteProducto(models.Model):
     # (base de datos, human readable)
-    OPCIONES_TALLE = [
+    '''OPCIONES_TALLE = [
         ('XS', 'Extra Small'),
         ('S', 'Small'),
         ('M', 'Medium'),
@@ -83,11 +83,11 @@ class VarianteProducto(models.Model):
         ('XL', 'Extra Large'),
         ('XXL', 'Doble Extra Large'),
         ('U', 'Talle Único'),
-    ]
+    ]'''
 
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='variantes', verbose_name="Producto Base")
     color = models.ForeignKey(Color, default=None, null=True, on_delete=models.PROTECT, related_name='variantes', verbose_name="Color")
-    talle = models.CharField(max_length=5, choices=OPCIONES_TALLE, verbose_name="Talle")
+    talle = models.CharField(max_length=5, verbose_name="Talle")
     
     sku = models.CharField(max_length=50, default=None, null=True, unique=True, verbose_name="SKU / Código de Artículo")
 
