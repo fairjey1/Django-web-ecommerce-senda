@@ -1,0 +1,168 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<nav class="breadcrumbs">
+    <a href="{% url 'products:catalogo_generos' %}">Inicio</a> / Detalle / {{ producto.nombre }}
+</nav>
+
+<div class="producto-detalle-container">
+    
+    <div class="producto-imagen-principal">
+        {% if producto.image %}
+            <img src="{{ producto.image.url }}" alt="{{ producto.nombre }}" class="img-fluida">
+        {% else %}
+            <div class="placeholder-grande">Sin imagen disponible</div>
+        {% endif %}
+    </div>
+
+    <div class="producto-info-compra">
+        <p class="marca-texto">{{ producto.marca.nombre }}</p>
+        <h1 class="producto-titulo">{{ producto.nombre }}</h1>
+        
+        <div class="seccion-precios">
+            {% if request.user.is_authenticated and request.user.esta_aprobado %}
+                <span class="badge-mayorista">Precio Mayorista</span>
+                {% if producto.precio_promocional_mayorista %}
+                    <p class="precio-tachado">${{ producto.precio_mayorista }}</p>
+                    <p class="precio-destacado">${{ producto.precio_promocional_mayorista }}</p>
+                {% else %}
+                    <p class="precio-final">${{ producto.precio_mayorista }}</p>
+                {% endif %}
+            
+            {% else %}
+                {% if producto.precio_promocional_minorista %}
+                    <p class="precio-tachado">${{ producto.precio_minorista }}</p>
+                    <p class="precio-destacado">${{ producto.precio_promocional_minorista }}</p>
+                {% else %}
+                    <p class="precio-final">${{ producto.precio_minorista }}</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="producto-descripcion">
+            <h3>Descripción</h3>
+            <p>{{ producto.descripcion }}</p>
+        </div>
+
+        <form action="#" method="POST" class="form-seleccion-variante">
+            {% csrf_token %}
+            
+            <div class="selector-atributos">
+                <div class="opciones-grupo">
+                    <h4>Color:</h4>
+                    <div class="botones-seleccion">
+                        {% for color in colores_unicos %}
+                            <label class="radio-label">
+                                <input type="radio" name="color_seleccionado" value="{{ color.id }}" class="radio-color">
+                                <span class="checkmark">{{ color.nombre }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="opciones-grupo" style="margin-top: 15px;">
+                    <h4>Talle:</h4>
+                    <div class="botones-seleccion">
+                        {% for talle in talles_unicos %}
+                            <label class="radio-label">
+                                <input type="radio" name="talle_seleccionado" value="{{ talle }}" class="radio-talle">
+                                <span class="checkmark">{{ talle }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden" name="variante" id="variante-final-id" required>
+            
+            <p id="mensaje-stock" style="color: red; font-size: 0.9em; display: none;">Sin stock para esta combinación.</p>
+
+            <button type="submit" id="btn-agregar" class="btn-agregar-carrito" disabled style="margin-top: 20px;">
+                Selecciona Talle y Color
+            </button>
+        </form>
+
+    </div>
+</div>
+<script type="application/json" id="variantes-data">
+    [
+        {% for v in variantes %}
+        {
+            "id": {{ v.id }},
+            "color_id": "{{ v.color.id }}",
+            "talle": "{{ v.talle|escapejs }}",
+            "stock": {{ v.cantidad_stock }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+// Capturamos el texto del bloque de arriba y lo convertimos a un array real de JavaScript
+    const textoDatos = document.getElementById('variantes-data').textContent;
+    const variantes = JSON.parse(textoDatos);
+
+    const radiosColor = document.querySelectorAll('.radio-color');
+    const radiosTalle = document.querySelectorAll('.radio-talle');
+    const inputVarianteId = document.getElementById('variante-final-id');
+    const btnAgregar = document.getElementById('btn-agregar');
+    const msjStock = document.getElementById('mensaje-stock');
+    
+    function actualizarOpciones() {
+        // Obtenemos qué eligió el usuario (puede ser undefined si aún no tocó nada)
+        const colorSeleccionado = document.querySelector('.radio-color:checked')?.value;
+        const talleSeleccionado = document.querySelector('.radio-talle:checked')?.value;
+
+        // Resetear estado del botón y del input oculto
+        btnAgregar.disabled = true;
+        btnAgregar.innerText = "Selecciona Talle y Color";
+        inputVarianteId.value = "";
+        msjStock.style.display = 'none';
+
+        // Lógica de inhabilitación cruzada
+        radiosTalle.forEach(radio => {
+            if (colorSeleccionado) {
+                // Buscamos si existe esta variante con stock
+                const varianteExiste = variantes.find(v => v.color_id === colorSeleccionado && v.talle === radio.value && v.stock > 0);
+                radio.disabled = !varianteExiste;
+                // Opcional: Agregar clase visual de inhabilitado
+                radio.parentElement.style.opacity = varianteExiste ? "1" : "0.4";
+            } else {
+                radio.disabled = false;
+                radio.parentElement.style.opacity = "1";
+            }
+        });
+
+        radiosColor.forEach(radio => {
+            if (talleSeleccionado) {
+                const varianteExiste = variantes.find(v => v.talle === talleSeleccionado && v.color_id === radio.value && v.stock > 0);
+                radio.disabled = !varianteExiste;
+                radio.parentElement.style.opacity = varianteExiste ? "1" : "0.4";
+            } else {
+                radio.disabled = false;
+                radio.parentElement.style.opacity = "1";
+            }
+        });
+
+        // Si ambas cosas están seleccionadas, buscamos el ID exacto
+        if (colorSeleccionado && talleSeleccionado) {
+            const varianteExacta = variantes.find(v => v.color_id === colorSeleccionado && v.talle === talleSeleccionado);
+            
+            if (varianteExacta && varianteExacta.stock > 0) {
+                inputVarianteId.value = varianteExacta.id;
+                btnAgregar.disabled = false;
+                btnAgregar.innerText = "Agregar al Carrito";
+            } else {
+                msjStock.style.display = 'block';
+                btnAgregar.innerText = "Sin Stock";
+            }
+        }
+    }
+
+    // Escuchar los clicks en todos los botones
+    radiosColor.forEach(r => r.addEventListener('change', actualizarOpciones));
+    radiosTalle.forEach(r => r.addEventListener('change', actualizarOpciones));
+});
+</script>
+{% endblock %}

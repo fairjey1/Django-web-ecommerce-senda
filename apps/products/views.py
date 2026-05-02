@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.views import View
+from django.views.generic import DetailView
 from .models import Categoria, Producto
 
 class CatalogoGenerosView(View):
@@ -65,3 +66,35 @@ class CategoriaPorGeneroView(View):
             'orden_actual': orden
         }
         return render(request, self.template_name, context)
+
+class ProductoDetailView(DetailView):
+    '''
+    Vista de detalle de un producto específico. Se accede desde el listado de productos.
+    '''
+    model = Producto
+    template_name = 'products/producto_detalle.html'
+    context_object_name = 'producto' 
+
+    def get_queryset(self):
+        """
+        Sobrescribimos la consulta base para incluir nuestras reglas
+        de productos activos y optimizar con prefetch_related.
+        """
+        return Producto.objects.filter(
+            esta_activo=True
+        ).prefetch_related('variantes__color')
+
+    def get_context_data(self, **kwargs):
+        """
+        Sobrescribimos el contexto para agregar variables extra (como las variantes)
+        que no vienen por defecto con el producto.
+        """
+        # 1. Obtenemos el contexto original que armó DetailView
+        context = super().get_context_data(**kwargs)
+        
+        # Agregamos las variantes al diccionario contexto para el html
+        variantes = self.object.variantes.all()
+        context['variantes'] = variantes
+        context['colores_unicos'] = set(v.color for v in variantes)
+        context['talles_unicos'] = set(v.talle for v in variantes)
+        return context

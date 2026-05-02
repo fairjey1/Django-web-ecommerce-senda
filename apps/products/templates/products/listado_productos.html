@@ -33,12 +33,13 @@
 
 <div class="productos-grid">
     {% for producto in productos %}
-        <div class="producto-card">
-            
-            <div class="producto-imagen-container">
-                {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="producto-img">
-                {% else %}
+        <a href="{% url 'products:producto_detalle' producto.pk %}">
+            <div class="producto-card">
+                
+                <div class="producto-imagen-container">
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="producto-img">
+                    {% else %}
                     <div class="producto-img-placeholder">Sin Foto</div>
                 {% endif %}
             </div>
@@ -70,7 +71,7 @@
 
                 </div>
                 </div>
-        </div>
+        </div></a>
     {% empty %}
         <p class="empty-message">No encontramos productos con estos filtros.</p>
     {% endfor %}
