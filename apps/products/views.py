@@ -1,16 +1,15 @@
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.generic import DetailView
-from .models import Categoria, Producto
+from .models import Categoria, Producto, Genero
 
 class CatalogoGenerosView(View):
     """
     Vista Inicial: El usuario elige Hombre, Mujer o Unisex.
     """
     template_name = 'products/selector_generos.html'
-
     def get(self, request):
-        opciones_genero = ['Hombre', 'Mujer', 'Unisex']
+        opciones_genero = Genero.objects.values_list('nombre', flat=True).distinct()
         return render(request, self.template_name, {'generos': opciones_genero})
 
 class GeneroDetalleView(View):

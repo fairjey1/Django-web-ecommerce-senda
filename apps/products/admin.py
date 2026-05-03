@@ -58,9 +58,9 @@ class ProductoAdmin(admin.ModelAdmin):
 
 @admin.register(VarianteProducto)
 class VarianteProductoAdmin(admin.ModelAdmin):
-    list_display = ('sku', 'producto', 'color', 'talle', 'cantidad_stock', 'peso_kg')
+    list_display = ('sku', 'producto', 'color', 'talle', 'cantidad_stock')
     
-    list_filter = ('talle', 'color')
+    list_filter = ('talle', 'color', 'producto__marca', 'producto__categorias', 'producto__generos')
     
     search_fields = ('sku', 'producto__nombre', 'color__nombre')
     ordering = ('cantidad_stock',)
