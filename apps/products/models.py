@@ -121,3 +121,17 @@ class VarianteProducto(models.Model):
 
     def __str__(self):
         return f"{self.sku} - {self.producto.nombre} - {self.color.nombre} - Talle {self.talle}" 
+
+class ProductoImagen(models.Model):
+    '''
+    ProductoImagen representa imágenes adicionales para un producto, permitiendo una galería de imágenes para cada producto base.
+    '''
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='imagenes', verbose_name="Producto")
+    imagen = models.ImageField(upload_to='productos/galeria/', verbose_name="Imagen del Producto")
+
+    class Meta:
+        verbose_name = "Imagen de Producto"
+        verbose_name_plural = "Imágenes de Productos"
+
+    def __str__(self):
+        return f"Imagen de {self.producto.nombre}"

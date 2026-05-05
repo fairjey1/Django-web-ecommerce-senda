@@ -144,3 +144,6 @@ DEFAULT_FROM_EMAIL = "Acme <onboarding@resend.dev>"
 
 # El correo al que llegarán los avisos
 EMAIL_RECIPIENT = os.getenv('EMAIL_RECIPIENT')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -81,7 +81,7 @@ class ProductoDetailView(DetailView):
         """
         return Producto.objects.filter(
             esta_activo=True
-        ).prefetch_related('variantes__color')
+        ).prefetch_related('variantes__color', 'imagenes')
 
     def get_context_data(self, **kwargs):
         """

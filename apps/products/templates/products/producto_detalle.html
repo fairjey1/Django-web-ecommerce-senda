@@ -7,16 +7,47 @@
 
 <div class="producto-detalle-container">
     
-    <div class="producto-imagen-principal">
-        {% if producto.image %}
-            <img src="{{ producto.image.url }}" alt="{{ producto.nombre }}" class="img-fluida">
-        {% else %}
-            <div class="placeholder-grande">Sin imagen disponible</div>
-        {% endif %}
+    <div class="producto-visualizacion">
+        <div class="galeria-container">
+            <div class="foto-principal">
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" id="vista-previa" alt="{{ producto.nombre }}" class="img-fluida">
+                {% else %}
+                    <div class="placeholder-grande">Sin imagen</div>
+                {% endif %}
+            </div>
+
+            <div class="miniaturas-grid">
+                {# 1. Agregamos la imagen base como primera miniatura #}
+                {% if producto.imagen %}
+                    <div class="miniatura-item">
+                        <img src="{{ producto.imagen.url }}" class="img-thumb active" onclick="cambiarFoto(this)">
+                    </div>
+                {% endif %}
+
+                {# 2. Ciclo para las imágenes adicionales de la galería #}
+                {% for extra in producto.imagenes.all %}
+                    <div class="miniatura-item">
+                        <img src="{{ extra.imagen.url }}" class="img-thumb" onclick="cambiarFoto(this)">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 
+    <script>
+    function cambiarFoto(element) {
+        // 1. Cambiamos el src de la imagen principal por el de la miniatura clickeada
+        document.getElementById('vista-previa').src = element.src;
+
+        // 2. (Opcional) Estilo visual: quitamos la clase 'active' de todas y se la ponemos a la actual
+        const todas = document.querySelectorAll('.img-thumb');
+        todas.forEach(img => img.classList.remove('active'));
+        element.classList.add('active');
+    }
+    </script>
+
     <div class="producto-info-compra">
-        <p class="marca-texto">{{ producto.marca.nombre }}</p>
         <h1 class="producto-titulo">{{ producto.nombre }}</h1>
         
         <div class="seccion-precios">

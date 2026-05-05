@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Categoria, Genero, Marca, Color, Producto, VarianteProducto
+from .models import Categoria, Genero, Marca, Color, Producto, ProductoImagen, VarianteProducto
 
 @admin.register(Genero)
 class GeneroAdmin(admin.ModelAdmin):
@@ -30,6 +30,12 @@ class VarianteProductoInline(admin.TabularInline):
     extra = 1  
     fields = ('sku', 'color', 'talle', 'cantidad_stock', 'peso_kg', 'largo_cm', 'ancho_cm', 'alto_cm')
 
+class ProductoImagenInline(admin.TabularInline):
+    model = ProductoImagen
+    extra = 1  
+    verbose_name = "Imagen del Producto"
+    verbose_name_plural = "Imágenes del Producto"
+
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'marca', 'precio_minorista', 'precio_mayorista', 'esta_activo')
@@ -37,7 +43,7 @@ class ProductoAdmin(admin.ModelAdmin):
     search_fields = ('nombre', 'descripcion', 'marca__nombre')
     filter_horizontal = ('categorias', 'generos')
 
-    inlines = [VarianteProductoInline]
+    inlines = [VarianteProductoInline, ProductoImagenInline]
 
     fieldsets = (
         ('Información Principal', {
