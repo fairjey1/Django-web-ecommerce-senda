@@ -18,7 +18,7 @@ class CustomUser(AbstractUser):
         help_text="Indica que el usuario es mayorista. Se establece automaticamente."
     )
     esta_aprobado = models.BooleanField( # campo para validar todo: logueo, compras, etc.
-        default=False, 
+        default=True, 
         help_text="Indica si el administrador validó y aprobó la cuenta mayorista."
     )
     observaciones = models.TextField(
