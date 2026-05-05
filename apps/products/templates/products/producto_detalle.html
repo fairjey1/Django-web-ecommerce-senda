@@ -115,6 +115,43 @@
 
     </div>
 </div>
+<section class="productos-relacionados" style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 30px;">
+    <h2 class="section-title">También te podría interesar</h2>
+    
+    <div class="productos-grid" style="display: flex; gap: 20px; flex-wrap: wrap;">
+        {% for relacionado in productos_relacionados %}
+            <div class="producto-card-mini" style="width: 200px; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
+                <a href="{% url 'products:producto_detalle' relacionado.pk %}" style="text-decoration: none; color: inherit;">
+                    {% if relacionado.imagen %}
+                        <img src="{{ relacionado.imagen.url }}" alt="{{ relacionado.nombre }}" style="width: 100%; border-radius: 4px;">
+                    {% else %}
+                        <div class="placeholder-mini" style="height: 150px; background: #f4f4f4;">Sin Foto</div>
+                    {% endif %}
+                    
+                    <h4 style="margin: 10px 0 5px 0; font-size: 0.9em;">{{ relacionado.nombre }}</h4>
+                    
+                    <div class="precios-relacionados">
+                        {% if request.user.is_authenticated and request.user.esta_aprobado %}
+                            {% if relacionado.precio_promocional_mayorista %}
+                                <p style="color: red; font-weight: bold; margin: 0;">${{ relacionado.precio_promocional_mayorista }}</p>
+                            {% else %}
+                                <p style="font-weight: bold; margin: 0;">${{ relacionado.precio_mayorista }}</p>
+                            {% endif %}
+                        {% else %}
+                            {% if relacionado.precio_promocional_minorista %}
+                                <p style="color: red; font-weight: bold; margin: 0;">${{ relacionado.precio_promocional_minorista }}</p>
+                            {% else %}
+                                <p style="font-weight: bold; margin: 0;">${{ relacionado.precio_minorista }}</p>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <p class="empty-message">No hay productos relacionados por el momento.</p>
+        {% endfor %}
+    </div>
+</section>
 <script type="application/json" id="variantes-data">
     [
         {% for v in variantes %}

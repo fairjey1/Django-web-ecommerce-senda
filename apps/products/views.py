@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.generic import DetailView
+
+from django.db import models
 from .models import Categoria, Producto, Genero
 
 class CatalogoGenerosView(View):
@@ -85,10 +87,10 @@ class ProductoDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         """
-        Sobrescribimos el contexto para agregar variables extra (como las variantes)
+        Sobrescribimos el contexto para agregar variables extra (como las variantes) o los productos relacionados,
         que no vienen por defecto con el producto.
         """
-        # 1. Obtenemos el contexto original que armó DetailView
+        producto_actual = self.object
         context = super().get_context_data(**kwargs)
         
         # Agregamos las variantes al diccionario contexto para el html
@@ -96,4 +98,16 @@ class ProductoDetailView(DetailView):
         context['variantes'] = variantes
         context['colores_unicos'] = set(v.color for v in variantes)
         context['talles_unicos'] = set(v.talle for v in variantes)
+
+
+        categorias_ids = producto_actual.categorias.values_list('id', flat=True)
+        productos_relacionados = Producto.objects.filter(
+            esta_activo=True
+        ).filter(
+            models.Q(categorias__id__in=categorias_ids) | 
+            models.Q(marca=producto_actual.marca)
+        ).exclude(
+            id=producto_actual.id
+        ).distinct()[:4]
+        context['productos_relacionados'] = productos_relacionados
         return context
