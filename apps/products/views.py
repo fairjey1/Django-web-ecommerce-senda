@@ -1,3 +1,5 @@
+from multiprocessing import context
+
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.generic import DetailView
@@ -96,9 +98,11 @@ class ProductoDetailView(DetailView):
         # Agregamos las variantes al diccionario contexto para el html
         variantes = self.object.variantes.all()
         context['variantes'] = variantes
-        context['colores_unicos'] = set(v.color for v in variantes)
-        context['talles_unicos'] = set(v.talle for v in variantes)
-
+        context['colores_unicos'] = sorted(set(v.color for v in variantes), key=lambda x: x.nombre)
+        context['talles_unicos'] = sorted(set(v.talle for v in variantes))
+        # stock de cada variante
+        stock_por_variante = {v.id: v.cantidad_stock for v in variantes}
+        context['stock_por_variante'] = stock_por_variante
 
         categorias_ids = producto_actual.categorias.values_list('id', flat=True)
         productos_relacionados = Producto.objects.filter(

@@ -75,43 +75,84 @@
             <p>{{ producto.descripcion }}</p>
         </div>
 
+        {{ stock_por_variante|json_script:"stock-data" }}
+
+        <script type="application/json" id="variantes-json">
+            [
+                {% for v in variantes %}
+                {
+                    "id": {{ v.id }},
+                    "color_id": "{{ v.color.id }}",
+                    "talle": "{{ v.talle|escapejs }}",
+                    "stock": {{ v.cantidad_stock }}
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        </script>
+
         <form action="#" method="POST" class="form-seleccion-variante">
             {% csrf_token %}
             
-            <div class="selector-atributos">
-                <div class="opciones-grupo">
-                    <h4>Color:</h4>
-                    <div class="botones-seleccion">
-                        {% for color in colores_unicos %}
-                            <label class="radio-label">
-                                <input type="radio" name="color_seleccionado" value="{{ color.id }}" class="radio-color">
-                                <span class="checkmark">{{ color.nombre }}</span>
-                            </label>
-                        {% endfor %}
-                    </div>
+            <div class="grupo-seleccion">
+                <label><strong>Color:</strong></label>
+                <div class="botones-container">
+                    {% for color in colores_unicos %}
+                        <label class="btn-check">
+                            <input type="radio" name="color_sel" value="{{ color.id }}" class="radio-variante">
+                            <span>{{ color.nombre }}</span>
+                        </label>
+                    {% endfor %}
                 </div>
+            </div>
 
-                <div class="opciones-grupo" style="margin-top: 15px;">
-                    <h4>Talle:</h4>
-                    <div class="botones-seleccion">
-                        {% for talle in talles_unicos %}
-                            <label class="radio-label">
-                                <input type="radio" name="talle_seleccionado" value="{{ talle }}" class="radio-talle">
-                                <span class="checkmark">{{ talle }}</span>
-                            </label>
-                        {% endfor %}
+            <div class="grupo-seleccion" style="margin-top: 15px;">
+                <label><strong>Talle:</strong></label>
+                <div class="botones-container">
+                    {% for talle in talles_unicos %}
+                        <label class="btn-check">
+                            <input type="radio" name="talle_sel" value="{{ talle }}" class="radio-variante">
+                            <span>{{ talle }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div id="seccion-compra" style="margin-top: 25px; display: none;">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div>
+                        <label><strong>Cantidad:</strong></label>
+                        <div class="contador-container" style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                            <button type="button" onclick="ajustarCantidad(-1)">-</button>
+                            <input type="number" id="input-cantidad" name="cantidad" value="1" min="1" readonly style="width: 50px; text-align: center;">
+                            <button type="button" onclick="ajustarCantidad(1)">+</button>
+                        </div>
+                    </div>
+                    <div>
+                        <p id="stock-disponible" style="margin: 0; color: #666;"></p>
                     </div>
                 </div>
             </div>
 
-            <input type="hidden" name="variante" id="variante-final-id" required>
-            
-            <p id="mensaje-stock" style="color: red; font-size: 0.9em; display: none;">Sin stock para esta combinación.</p>
+            <input type="hidden" name="variante_id" id="variante-id-final">
 
-            <button type="submit" id="btn-agregar" class="btn-agregar-carrito" disabled style="margin-top: 20px;">
-                Selecciona Talle y Color
+            <button type="submit" id="btn-carrito" disabled style="margin-top: 20px; padding: 10px 30px;">
+                Agregar al Carrito
             </button>
         </form>
+
+        <style>
+            /* Estilo básico para que los radio parezcan botones */
+            .botones-container { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px; }
+            .btn-check input { display: none; }
+            .btn-check span { 
+                display: inline-block; padding: 8px 15px; border: 1px solid #ccc; 
+                cursor: pointer; border-radius: 4px; 
+            }
+            .btn-check input:checked + span { 
+                background-color: #000; color: #fff; border-color: #000; 
+            }
+            .btn-check.disabled { opacity: 0.3; pointer-events: none; }
+        </style>
 
     </div>
 </div>
@@ -165,72 +206,130 @@
     ]
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    
-// Capturamos el texto del bloque de arriba y lo convertimos a un array real de JavaScript
-    const textoDatos = document.getElementById('variantes-data').textContent;
-    const variantes = JSON.parse(textoDatos);
+    const variantes = JSON.parse(document.getElementById('variantes-json').textContent);
+    const inputCant = document.getElementById('input-cantidad');
+    const displayStock = document.getElementById('stock-disponible');
+    const seccionCompra = document.getElementById('seccion-compra');
+    const btnCarrito = document.getElementById('btn-carrito');
+    const inputFinal = document.getElementById('variante-id-final');
 
-    const radiosColor = document.querySelectorAll('.radio-color');
-    const radiosTalle = document.querySelectorAll('.radio-talle');
-    const inputVarianteId = document.getElementById('variante-final-id');
-    const btnAgregar = document.getElementById('btn-agregar');
-    const msjStock = document.getElementById('mensaje-stock');
-    
-    function actualizarOpciones() {
-        // Obtenemos qué eligió el usuario (puede ser undefined si aún no tocó nada)
-        const colorSeleccionado = document.querySelector('.radio-color:checked')?.value;
-        const talleSeleccionado = document.querySelector('.radio-talle:checked')?.value;
+    // --- NUEVO: Rastreadores para permitir "des-seleccionar" ---
+    let ultimoColor = null;
+    let ultimoTalle = null;
 
-        // Resetear estado del botón y del input oculto
-        btnAgregar.disabled = true;
-        btnAgregar.innerText = "Selecciona Talle y Color";
-        inputVarianteId.value = "";
-        msjStock.style.display = 'none';
+    const radiosColor = document.querySelectorAll('input[name="color_sel"]');
+    const radiosTalle = document.querySelectorAll('input[name="talle_sel"]');
 
-        // Lógica de inhabilitación cruzada
+    // Escuchamos el CLICK en lugar del CHANGE en Colores
+    radiosColor.forEach(radio => {
+        radio.addEventListener('click', function(e) {
+            if (ultimoColor === this.value) {
+                // Si tocó el que ya estaba seleccionado, lo apagamos
+                this.checked = false;
+                ultimoColor = null;
+            } else {
+                // Si tocó uno nuevo, actualizamos el rastreador
+                ultimoColor = this.value;
+            }
+            actualizarInterfaz();
+        });
+    });
+
+    // Escuchamos el CLICK en lugar del CHANGE en Talles
+    radiosTalle.forEach(radio => {
+        radio.addEventListener('click', function(e) {
+            if (ultimoTalle === this.value) {
+                this.checked = false;
+                ultimoTalle = null;
+            } else {
+                ultimoTalle = this.value;
+            }
+            actualizarInterfaz();
+        });
+    });
+
+    function actualizarInterfaz() {
+        const colorSeleccionado = document.querySelector('input[name="color_sel"]:checked')?.value;
+        const talleSeleccionado = document.querySelector('input[name="talle_sel"]:checked')?.value;
+
+        // --- 1. LÓGICA DE INHABILITACIÓN DE TALLES SEGÚN COLOR ---
         radiosTalle.forEach(radio => {
             if (colorSeleccionado) {
-                // Buscamos si existe esta variante con stock
-                const varianteExiste = variantes.find(v => v.color_id === colorSeleccionado && v.talle === radio.value && v.stock > 0);
-                radio.disabled = !varianteExiste;
-                // Opcional: Agregar clase visual de inhabilitado
-                radio.parentElement.style.opacity = varianteExiste ? "1" : "0.4";
+                const tieneStock = variantes.some(v => v.color_id == colorSeleccionado && v.talle == radio.value && v.stock > 0);
+                
+                if (tieneStock) {
+                    radio.disabled = false;
+                    radio.parentElement.classList.remove('disabled');
+                } else {
+                    radio.disabled = true;
+                    radio.parentElement.classList.add('disabled');
+                    if (radio.checked) {
+                        radio.checked = false;
+                        ultimoTalle = null; // Sincronizamos el rastreador si el script lo apaga
+                    }
+                }
             } else {
                 radio.disabled = false;
-                radio.parentElement.style.opacity = "1";
+                radio.parentElement.classList.remove('disabled');
             }
         });
 
+        // --- 2. LÓGICA DE INHABILITACIÓN DE COLORES SEGÚN TALLE ---
         radiosColor.forEach(radio => {
             if (talleSeleccionado) {
-                const varianteExiste = variantes.find(v => v.talle === talleSeleccionado && v.color_id === radio.value && v.stock > 0);
-                radio.disabled = !varianteExiste;
-                radio.parentElement.style.opacity = varianteExiste ? "1" : "0.4";
+                const tieneStock = variantes.some(v => v.color_id == radio.value && v.talle == talleSeleccionado && v.stock > 0);
+                
+                if (tieneStock) {
+                    radio.disabled = false;
+                    radio.parentElement.classList.remove('disabled');
+                } else {
+                    radio.disabled = true;
+                    radio.parentElement.classList.add('disabled');
+                    if (radio.checked) {
+                        radio.checked = false;
+                        ultimoColor = null; // Sincronizamos el rastreador si el script lo apaga
+                    }
+                }
             } else {
                 radio.disabled = false;
-                radio.parentElement.style.opacity = "1";
+                radio.parentElement.classList.remove('disabled');
             }
         });
 
-        // Si ambas cosas están seleccionadas, buscamos el ID exacto
-        if (colorSeleccionado && talleSeleccionado) {
-            const varianteExacta = variantes.find(v => v.color_id === colorSeleccionado && v.talle === talleSeleccionado);
-            
-            if (varianteExacta && varianteExacta.stock > 0) {
-                inputVarianteId.value = varianteExacta.id;
-                btnAgregar.disabled = false;
-                btnAgregar.innerText = "Agregar al Carrito";
-            } else {
-                msjStock.style.display = 'block';
-                btnAgregar.innerText = "Sin Stock";
+        // --- 3. LÓGICA DE STOCK Y CONTADOR ---
+        const colorFinal = document.querySelector('input[name="color_sel"]:checked')?.value;
+        const talleFinal = document.querySelector('input[name="talle_sel"]:checked')?.value;
+
+        if (colorFinal && talleFinal) {
+            const encontrado = variantes.find(v => v.color_id == colorFinal && v.talle == talleFinal);
+
+            if (encontrado && encontrado.stock > 0) {
+                seccionCompra.style.display = 'block';
+                displayStock.innerText = `Stock: ${encontrado.stock} unidades`;
+                inputCant.max = encontrado.stock;
+                
+                // Solo reseteamos a 1 si el valor actual es mayor al nuevo stock máximo
+                if (parseInt(inputCant.value) > encontrado.stock) {
+                    inputCant.value = 1;
+                }
+                
+                inputFinal.value = encontrado.id;
+                btnCarrito.disabled = false;
             }
+        } else {
+            seccionCompra.style.display = 'none';
+            btnCarrito.disabled = true;
         }
     }
 
-    // Escuchar los clicks en todos los botones
-    radiosColor.forEach(r => r.addEventListener('change', actualizarOpciones));
-    radiosTalle.forEach(r => r.addEventListener('change', actualizarOpciones));
-});
+    function ajustarCantidad(cambio) {
+        let actual = parseInt(inputCant.value);
+        let maximo = parseInt(inputCant.max);
+        let nuevo = actual + cambio;
+        
+        if (nuevo >= 1 && nuevo <= maximo) {
+            inputCant.value = nuevo;
+        }
+    }
 </script>
 {% endblock %}
