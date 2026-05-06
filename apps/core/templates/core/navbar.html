@@ -5,7 +5,7 @@
             <li><a href="{% url 'core:home' %}">Inicio</a></li>
             <li><a href="{% url 'products:catalogo_generos' %}">Catálogo</a></li>
             <li><a href="{% url 'core:about' %}">Sobre Nosotros</a></li>
-            <li><a href="#">Carrito</a></li>
+            <li><a href="{% url 'cart:carrito_detalle' %}">Carrito</a></li>
             <li><a href="{% url 'users:acceso_mayoristas' %}">Acceso Mayoristas</a></li>
                 {% if user.is_authenticated %}
                     <form action="{% url 'users:logout' %}" method="post">

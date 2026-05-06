@@ -9,6 +9,17 @@
 
     {% include 'core/navbar.html' %}
 
+    <!-- Mensajes de éxito, error, advertencia, etc. -->
+
+    {% if messages %}
+        <div class="contenedor-mensajes">
+            {% for message in messages %}
+                <div>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
     <main>
         {% block content %}
         {% endblock content %}

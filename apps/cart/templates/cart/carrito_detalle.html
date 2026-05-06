@@ -1,0 +1,72 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="carrito-container">
+    <h1 class="carrito-titulo">Tu Carrito de Compras</h1>
+
+    {% if carrito|length > 0 %}
+        <div class="carrito-contenido">
+            <table class="carrito-tabla">
+                <thead class="carrito-cabecera">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Variante (Talle/Color)</th>
+                        <th>Precio Unitario</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody class="carrito-cuerpo">
+                    {% for item in carrito %}
+                        <tr class="carrito-item">
+                            <td class="item-nombre">
+                                {{ item.variante.producto.nombre }}
+                            </td>
+                            <td class="item-variante">
+                                Talle: {{ item.variante.talle }} <br>
+                                Color: {{ item.variante.color.nombre }}
+                            </td>
+                            <td class="item-precio">
+                                ${{ item.precio }}
+                            </td>
+                            <td class="item-cantidad">
+                                {{ item.cantidad }}
+                            </td>
+                            <td class="item-subtotal">
+                                ${{ item.precio_total }}
+                            </td>
+                            <td class="item-accion">
+                                <a href="{% url 'cart:eliminar_del_carrito' item.variante.id %}" class="btn-eliminar">Quitar</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="carrito-resumen">
+            <h2 class="resumen-total">Total del Pedido: ${{ carrito.get_total_precio }}</h2>
+
+            {% if not carrito.cumple_minimo_mayorista %}
+                <div class="alerta-minimo-mayorista">
+                    <p><strong>Aviso para Mayoristas:</strong> El monto mínimo de compra es de $50,000.</p>
+                    <p>Te faltan agregar más artículos para poder finalizar tu pedido.</p>
+                </div>
+                <button class="btn-pago disabled" disabled>Proceder al Pago</button>
+            {% else %}
+                <a href="{% url 'cart:pre_checkout' %}" class="btn-pago">Proceder al Pago</a>
+            {% endif %}
+
+            <a href="{% url 'products:catalogo_generos' %}" class="btn-seguir-comprando">Seguir Comprando</a>
+        </div>
+
+    {% else %}
+        <div class="carrito-vacio">
+            <p>Aún no has agregado ninguna prenda a tu pedido.</p>
+            <a href="{% url 'products:catalogo_generos' %}" class="btn-seguir-comprando">Ir al Catálogo</a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

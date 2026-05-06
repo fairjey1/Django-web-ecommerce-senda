@@ -52,18 +52,18 @@
                 {% if request.user.is_authenticated and request.user.esta_aprobado %}
                     <span style="background: #ffd700; font-size: 0.8em; padding: 2px 6px; border-radius: 4px;">Mayorista</span>
                     
-                    {% if producto.precio_promocional %}
+                    {% if producto.precio_promocional_mayorista %}
                         <p style="color: gray; text-decoration: line-through; margin: 0;">${{ producto.precio_mayorista }}</p>
-                        <p style="color: #e60000; font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_promocional }}</p>
+                        <p style="color: #e60000; font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_promocional_mayorista }}</p>
                     {% else %}
                         <p style="font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_mayorista }}</p>
                     {% endif %}
                 
                 {# 2. SI NO ESTÁ LOGUEADO O NO ESTÁ APROBADO, ES MINORISTA #}
                 {% else %}
-                    {% if producto.precio_promocional %}
+                    {% if producto.precio_promocional_minorista %}
                         <p style="color: gray; text-decoration: line-through; margin: 0;">${{ producto.precio_minorista }}</p>
-                        <p style="color: #e60000; font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_promocional }}</p>
+                        <p style="color: #e60000; font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_promocional_minorista }}</p>
                     {% else %}
                         <p style="font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_minorista }}</p>
                     {% endif %}

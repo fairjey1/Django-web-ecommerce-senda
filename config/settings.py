@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'apps.core',
     'apps.users',
     'apps.products',
+    'apps.cart',
 ]
 
 MIDDLEWARE = [
@@ -69,6 +70,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 
                 'apps.core.context_processors.global_site_config',
+                'apps.cart.context_processors.carrito',
             ],
         },
     },
@@ -147,3 +149,6 @@ EMAIL_RECIPIENT = os.getenv('EMAIL_RECIPIENT')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ID de la sesión del carrito
+CART_SESSION_ID = 'carrito_compras'

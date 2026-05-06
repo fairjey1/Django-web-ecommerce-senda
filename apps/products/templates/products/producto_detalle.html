@@ -90,7 +90,7 @@
             ]
         </script>
 
-        <form action="#" method="POST" class="form-seleccion-variante">
+        <form id="form-carrito" method="POST" action="#" class="form-seleccion-variante">
             {% csrf_token %}
             
             <div class="grupo-seleccion">
@@ -139,21 +139,6 @@
                 Agregar al Carrito
             </button>
         </form>
-
-        <style>
-            /* Estilo básico para que los radio parezcan botones */
-            .botones-container { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px; }
-            .btn-check input { display: none; }
-            .btn-check span { 
-                display: inline-block; padding: 8px 15px; border: 1px solid #ccc; 
-                cursor: pointer; border-radius: 4px; 
-            }
-            .btn-check input:checked + span { 
-                background-color: #000; color: #fff; border-color: #000; 
-            }
-            .btn-check.disabled { opacity: 0.3; pointer-events: none; }
-        </style>
-
     </div>
 </div>
 <section class="productos-relacionados" style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 30px;">
@@ -299,6 +284,7 @@
         // --- 3. LÓGICA DE STOCK Y CONTADOR ---
         const colorFinal = document.querySelector('input[name="color_sel"]:checked')?.value;
         const talleFinal = document.querySelector('input[name="talle_sel"]:checked')?.value;
+        const formCarrito = document.getElementById('form-carrito'); // Seleccionamos el form
 
         if (colorFinal && talleFinal) {
             const encontrado = variantes.find(v => v.color_id == colorFinal && v.talle == talleFinal);
@@ -315,10 +301,17 @@
                 
                 inputFinal.value = encontrado.id;
                 btnCarrito.disabled = false;
+
+                // MAGIA DEL CARRITO: Actualizamos la URL dinámicamente
+                // Django genera una url base con el ID '0' y JS lo reemplaza por el ID real
+                let urlBase = "{% url 'cart:agregar_al_carrito' 0 %}";
+                formCarrito.action = urlBase.replace('0', encontrado.id);
             }
         } else {
             seccionCompra.style.display = 'none';
             btnCarrito.disabled = true;
+            // Si des-selecciona, rompemos la URL por seguridad
+            formCarrito.action = "#"; 
         }
     }
 
@@ -331,5 +324,6 @@
             inputCant.value = nuevo;
         }
     }
+    
 </script>
 {% endblock %}
