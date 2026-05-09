@@ -78,3 +78,35 @@ def pre_checkout(request):
     # Por ahora, le mostramos un éxito y lo devolvemos.
     messages.success(request, "¡Stock verificado exitosamente! Tu carrito está reservado y listo para pagar (Próximamente).")
     return redirect('cart:carrito_detalle')
+
+@require_POST
+def actualizar_carrito(request, variante_id):
+    """Actualiza la cantidad exacta de un producto ya existente en el carrito."""
+    carrito = Carrito(request)
+    variante = get_object_or_404(VarianteProducto, id=variante_id)
+    
+    try:
+        cantidad_nueva = int(request.POST.get('cantidad'))
+    except (ValueError, TypeError):
+        messages.error(request, "Cantidad inválida.")
+        return redirect('cart:carrito_detalle')
+
+    # seguridad 
+    if cantidad_nueva > variante.cantidad_stock:
+        messages.error(request, f"No puedes pedir {cantidad_nueva}. Solo quedan {variante.cantidad_stock} unidades disponibles de {variante.producto.nombre}.")
+    elif cantidad_nueva <= 0:
+        # Si por algún motivo pone 0 o negativo, lo interpretamos como que quiere eliminar el producto del carrito.
+        carrito.eliminar(variante)
+        messages.info(request, "Producto eliminado del carrito.")
+    else:
+        carrito.agregar(variante=variante, cantidad=cantidad_nueva, sobreescribir_cantidad=True)
+        messages.success(request, f"Cantidad actualizada correctamente.")
+        
+    return redirect('cart:carrito_detalle')
+
+def limpiar_carrito(request):
+    """Limpia todos los productos de la sesión del carrito."""
+    carrito = Carrito(request)
+    carrito.limpiar()
+    messages.success(request, "Tu carrito ahora está vacío.")
+    return redirect('cart:carrito_detalle')

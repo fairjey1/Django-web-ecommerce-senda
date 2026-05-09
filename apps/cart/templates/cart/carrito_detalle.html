@@ -31,7 +31,15 @@
                                 ${{ item.precio }}
                             </td>
                             <td class="item-cantidad">
-                                {{ item.cantidad }}
+                                <form action="{% url 'cart:actualizar_carrito' item.variante.id %}" method="POST" style="display: flex; gap: 5px; align-items: center;">
+                                    {% csrf_token %}
+                                    
+                                    <input type="number" name="cantidad" value="{{ item.cantidad }}" min="1" max="{{ item.variante.cantidad_stock }}" style="width: 60px; text-align: center; padding: 5px;">
+                                    
+                                    <button type="submit" class="btn-actualizar" style="padding: 5px 10px; cursor: pointer;">
+                                        Actualizar
+                                    </button>
+                                </form>
                             </td>
                             <td class="item-subtotal">
                                 ${{ item.precio_total }}
@@ -44,6 +52,11 @@
                 </tbody>
             </table>
         </div>
+        <div style="margin-top: 20px;">
+            <a href="{% url 'cart:limpiar_carrito' %}">
+                Vaciar todo el carrito
+            </a>
+        </div>        
 
         <div class="carrito-resumen">
             <h2 class="resumen-total">Total del Pedido: ${{ carrito.get_total_precio }}</h2>
