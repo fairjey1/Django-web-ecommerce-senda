@@ -74,10 +74,10 @@ def pre_checkout(request):
         messages.error(request, "Acción denegada: No cumples con el monto mínimo de compra mayorista.")
         return redirect('cart:carrito_detalle')
 
-    # ¡TODO PERFECTO! Aquí en el futuro lo mandaremos a MercadoPago o a la app Orders.
-    # Por ahora, le mostramos un éxito y lo devolvemos.
-    messages.success(request, "¡Stock verificado exitosamente! Tu carrito está reservado y listo para pagar (Próximamente).")
-    return redirect('cart:carrito_detalle')
+    
+   
+    messages.success(request, "Tu carrito está listo para pagar.")
+    return redirect('orders:crear_pedido') 
 
 @require_POST
 def actualizar_carrito(request, variante_id):

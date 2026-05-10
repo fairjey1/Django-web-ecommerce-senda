@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="checkout-container">
+    <h1>Finalizar Pedido</h1>
+
+    <div style="display: flex; gap: 40px;">
+        <div style="flex: 1;">
+            <h3>Datos de Facturación y Envío</h3>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn-pago">Confirmar Pedido</button>
+            </form>
+        </div>
+
+        <div style="flex: 0.5; background: #f9f9f9; padding: 20px; border-radius: 8px;">
+            <h3>Resumen</h3>
+            <ul>
+                {% for item in carrito %}
+                    <li>{{ item.cantidad }}x {{ item.variante.producto.nombre }} - ${{ item.precio_total }}</li>
+                {% endfor %}
+            </ul>
+            <hr>
+            <h4>Total a pagar: ${{ carrito.get_total_precio }}</h4>
+        </div>
+    </div>
+</div>
+{% endblock %}
