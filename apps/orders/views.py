@@ -11,6 +11,8 @@ from .models import ItemPedido, Pedido
 from .forms import OrderCreateForm
 from apps.cart.cart import Carrito
 
+from apps.shipping.calculator import calcular_costo_envio
+
 def crear_pedido(request):
     carrito = Carrito(request)
     
@@ -38,6 +40,10 @@ def crear_pedido(request):
             # Usamos atomic() para asegurar que si algo falla, todo se revierta y no queden datos inconsistentes
             with transaction.atomic():
                 pedido = form.save(commit=False)
+                if pedido.metodo_entrega == 'retiro':
+                    pedido.costo_envio = 0 
+                else:
+                    pedido.costo_envio = calcular_costo_envio(carrito) 
                 
                 if request.user.is_authenticated:
                     pedido.usuario = request.user

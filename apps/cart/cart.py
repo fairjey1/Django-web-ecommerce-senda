@@ -1,6 +1,7 @@
 from decimal import Decimal
 from django.conf import settings
 from apps.products.models import VarianteProducto
+from apps.shipping import calculator
 
 class Carrito:
     def __init__(self, request):
@@ -134,3 +135,17 @@ class Carrito:
             self.guardar()
 
         return alertas
+    
+    def obtener_costo_envio(self):
+        return calculator.calcular_costo_envio(self)
+    
+    def get_total_final(self):
+        return self.get_total_precio() + self.obtener_costo_envio()
+    
+    def get_total_faltante_envio_gratis(self):
+        config = calculator.ConfiguracionEnvio.load()
+        total_compra = self.get_total_precio()
+        if total_compra >= config.minimo_compra_envio_gratis:
+            return Decimal('0.00')
+        faltante = config.minimo_compra_envio_gratis - total_compra
+        return faltante.quantize(Decimal('0.01'))

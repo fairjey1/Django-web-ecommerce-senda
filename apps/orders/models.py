@@ -15,6 +15,11 @@ class Pedido(models.Model):
         ('cancelado', 'Cancelado'),
     )
 
+    METODO_ENTREGA_CHOICES = (
+        ('envio', 'Envío a domicilio'),
+        ('retiro', 'Retiro en local'),
+    )
+
     # Relación opcional
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
@@ -43,7 +48,10 @@ class Pedido(models.Model):
     
     # Para saber si se aplicó lógica mayorista en el momento de la creación
     es_pedido_mayorista = models.BooleanField(default=False)
-    
+
+    # Costo de envío
+    metodo_entrega = models.CharField(max_length=10, choices=METODO_ENTREGA_CHOICES, default='envio')
+    costo_envio = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     # Campo para guardar el ID de transacción de MercadoPago o comprobante de transferencia
     transaccion_id = models.CharField(max_length=250, blank=True)
 
@@ -57,7 +65,8 @@ class Pedido(models.Model):
 
     def get_total_costo(self):
         """Calcula el costo total sumando los items."""
-        return sum(item.get_costo() for item in self.items.all())
+        subtotal = sum(item.get_costo() for item in self.items.all())
+        return subtotal + self.costo_envio
 
 
 class ItemPedido(models.Model):

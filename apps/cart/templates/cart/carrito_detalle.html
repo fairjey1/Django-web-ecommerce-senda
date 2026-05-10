@@ -59,7 +59,6 @@
         </div>        
 
         <div class="carrito-resumen">
-            <h2 class="resumen-total">Total del Pedido: ${{ carrito.get_total_precio }}</h2>
 
             {% if not carrito.cumple_minimo_mayorista %}
                 <div class="alerta-minimo-mayorista">
@@ -70,6 +69,17 @@
             {% else %}
                 <a href="{% url 'cart:pre_checkout' %}" class="btn-pago">Proceder al Pago</a>
             {% endif %}
+
+            <p>Costo de Envío a Domicilio (Estimado): 
+                {% if costo_envio == 0 %}
+                    <span style="color: green;">¡GRATIS!</span>
+                {% else %}
+                    ${{ costo_envio }}
+                    <p>Te faltan {{ carrito.get_total_faltante_envio_gratis }} para obtener envío gratis!</p>
+                {% endif %}
+            </p>
+
+            <h2 class="resumen-total">Total: ${{ carrito.get_total_final }}</h2>
 
             <a href="{% url 'products:catalogo_generos' %}" class="btn-seguir-comprando">Seguir Comprando</a>
         </div>
