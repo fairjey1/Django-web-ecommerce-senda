@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="checkout-container" style="max-width: 600px; margin: 0 auto; text-align: center;">
+    <h1 style="color: #28a745;">¡Orden #{{ pedido.id }} Reservada!</h1>
+    
+    <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <strong>Atención:</strong> Tu pedido y el stock están reservados en estado "Pendiente de Pago". 
+        Tienes <strong>24 horas</strong> para realizar la transferencia, de lo contrario la orden se cancelará automáticamente.
+    </div>
+
+    <h2>Total a pagar (con descuento): <span style="color: #d9534f;">${{ pedido.get_total_costo }}</span></h2>
+    <p style="color: #666;">Te ahorraste ${{ pedido.descuento }} por elegir este método.</p>
+
+    <div style="background: #f8f9fa; padding: 20px; border: 1px solid #ddd; text-align: left; margin: 20px 0;">
+        <h3>Datos para transferir:</h3>
+        <p style="font-family: monospace; font-size: 1.1em;">{{ config.datos_bancarios|linebreaksbr }}</p>
+    </div>
+
+    <h3>Último paso obligatorio:</h3>
+    <p>Para confirmar tu pago y que despachemos tu pedido, envíanos el comprobante por WhatsApp haciendo clic aquí:</p>
+    
+    <a href="https://wa.me/{{ config.whatsapp_comprobantes }}?text={{ mensaje_ws }}" target="_blank" 
+       style="display: inline-block; background-color: #25D366; color: white; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 1.2em;">
+        Enviar Comprobante por WhatsApp
+    </a>
+</div>
+{% endblock %}

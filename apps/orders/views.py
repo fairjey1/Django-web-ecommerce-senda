@@ -1,5 +1,9 @@
+from decimal import Decimal
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
+
+from apps.payments.models import ConfiguracionPagos
 from .models import ItemPedido, Pedido
 from .forms import OrderCreateForm
 from apps.cart.cart import Carrito
@@ -44,6 +48,15 @@ def crear_pedido(request):
                     pedido.costo_envio = 0 
                 else:
                     pedido.costo_envio = calcular_costo_envio(carrito) 
+
+                if pedido.metodo_pago == 'transferencia':
+                    config_pagos = ConfiguracionPagos.load()
+                    # Aplicamos el descuento solo sobre el subtotal de productos
+                    subtotal = carrito.get_total_precio()
+                    porcentaje = config_pagos.descuento_transferencia / Decimal('100')
+                    pedido.descuento = subtotal * porcentaje
+                else:
+                    pedido.descuento = Decimal('0.00')
                 
                 if request.user.is_authenticated:
                     pedido.usuario = request.user
@@ -69,7 +82,12 @@ def crear_pedido(request):
             carrito.limpiar()
             request.session['order_id'] = pedido.id
             
-            return redirect('orders:pedido_exito')
+            if pedido.metodo_pago == 'transferencia':
+                # Lo mandamos a la app payments para que vea las instrucciones
+                return redirect('payments:instrucciones', pedido_id=pedido.id)
+            else:
+                # Aquí irá MercadoPago más adelante
+                return redirect('payments:procesar_mercadopago', pedido_id=pedido.id)
     else:
         # Petición GET 
         alertas_stock = carrito.verificar_stock()

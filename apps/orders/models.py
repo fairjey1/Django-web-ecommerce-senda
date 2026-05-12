@@ -19,6 +19,11 @@ class Pedido(models.Model):
         ('envio', 'Envío a domicilio'),
         ('retiro', 'Retiro en local'),
     )
+    METODO_PAGO_CHOICES = (
+        ('transferencia', 'Transferencia Bancaria (Descuento)'),
+        ('mercadopago', 'MercadoPago'),
+    )
+
 
     # Relación opcional
     usuario = models.ForeignKey(
@@ -52,8 +57,15 @@ class Pedido(models.Model):
     # Costo de envío
     metodo_entrega = models.CharField(max_length=10, choices=METODO_ENTREGA_CHOICES, default='envio')
     costo_envio = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+    # Método de pago
+    metodo_pago = models.CharField(max_length=20, choices=METODO_PAGO_CHOICES, default='transferencia')
+    descuento = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
     # Campo para guardar el ID de transacción de MercadoPago o comprobante de transferencia
     transaccion_id = models.CharField(max_length=250, blank=True)
+
+    
 
     class Meta:
         ordering = ('-creado',)
@@ -66,7 +78,7 @@ class Pedido(models.Model):
     def get_total_costo(self):
         """Calcula el costo total sumando los items."""
         subtotal = sum(item.get_costo() for item in self.items.all())
-        return subtotal + self.costo_envio
+        return (subtotal + self.costo_envio) - self.descuento
 
 
 class ItemPedido(models.Model):

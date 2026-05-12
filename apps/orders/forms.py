@@ -5,12 +5,13 @@ class OrderCreateForm(forms.ModelForm):
     class Meta:
         model = Pedido
         fields = [
-            'metodo_entrega', 'nombre', 'apellido', 'email', 'telefono', 
+            'metodo_entrega', 'metodo_pago', 'nombre', 'apellido', 'email', 'telefono', 
             'provincia', 'ciudad', 'direccion', 'codigo_postal'
         ]
         
         widgets = {
             'metodo_entrega': forms.RadioSelect(),
+            'metodo_pago': forms.RadioSelect(),
             'nombre': forms.TextInput(attrs={'placeholder': 'Tu nombre'}),
             'apellido': forms.TextInput(attrs={'placeholder': 'Tu apellido'}),
             'email': forms.EmailInput(attrs={'placeholder': 'correo@ejemplo.com'}),

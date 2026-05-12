@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1'] 
 
 
 # Application definition
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'apps.cart',
     'apps.orders',
     'apps.shipping',
+    'apps.payments',
 ]
 
 MIDDLEWARE = [
@@ -154,3 +155,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # ID de la sesión del carrito
 CART_SESSION_ID = 'carrito_compras'
+
+# MP
+
+MERCADOPAGO_ACCESS_TOKEN = os.getenv('MERCADOPAGO_ACCESS_TOKEN')
+MERCADOPAGO_PUBLIC_KEY = os.getenv('MERCADOPAGO_PUBLIC_KEY')
