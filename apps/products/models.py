@@ -6,6 +6,7 @@ class Genero(models.Model):
     '''
     nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del Género")
     slug = models.SlugField(max_length=50, unique=True, blank=True)
+    imagen = models.ImageField(upload_to='generos/', null=True, blank=True, verbose_name="Imagen del Género")
 
     class Meta:
         verbose_name = "Género"

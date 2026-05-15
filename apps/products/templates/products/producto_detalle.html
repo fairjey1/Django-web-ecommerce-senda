@@ -4,9 +4,9 @@
 <nav class="breadcrumbs">
     <a href="{% url 'products:catalogo_generos' %}">Inicio</a> / Detalle / {{ producto.nombre }}
 </nav>
-
+{% if producto.esta_activo %}
 <div class="producto-detalle-container">
-    
+
     <div class="producto-visualizacion">
         <div class="galeria-container">
             <div class="foto-principal">
@@ -141,6 +141,12 @@
         </form>
     </div>
 </div>
+{% else %}
+    <div class="producto-inactivo">
+        <h2>Producto no disponible</h2>
+        <p>Lo sentimos, este producto no está activo en este momento.</p>
+    </div>
+{% endif %}
 <section class="productos-relacionados" style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 30px;">
     <h2 class="section-title">También te podría interesar</h2>
     

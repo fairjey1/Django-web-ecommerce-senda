@@ -1,25 +1,31 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ site_config.site_name }}{% endblock %}</title>
+    <title>{% block title %}{{ site_config.site_name }} | Cada paso cuenta{% endblock %}</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
 
     {% include 'core/navbar.html' %}
 
-    <!-- Mensajes de éxito, error, advertencia, etc. -->
-
     {% if messages %}
-        <div class="contenedor-mensajes">
+        <div class="container mt-3">
             {% for message in messages %}
-                <div>
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                     {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         </div>
     {% endif %}
+
     <main>
         {% block content %}
         {% endblock content %}
@@ -27,5 +33,6 @@
 
     {% include 'core/footer.html' %}
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

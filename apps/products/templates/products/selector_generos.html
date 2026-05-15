@@ -1,21 +1,37 @@
 {% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Catálogo | SENDA{% endblock %}
 
 {% block content %}
-<div class="welcome-section">
-    <h1>Bienvenido a nuestra tienda</h1>
-    <p>Selecciona una sección para comenzar a navegar:</p>
-</div>
-
-<div class="generos-container">
-    {% for g in generos %}
-        <div class="genero-card">
-            <h3>{{ g }}</h3>
-            <a href="{% url 'products:genero_detalle' g %}" class="btn-primary">
-                Ver catálogo
-            </a>
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold" style="font-family: var(--font-logo);">Colecciones</h1>
+            <p class="text-muted">Explorá nuestra indumentaria premium unisex por categoría.</p>
         </div>
-    {% empty %}
-        <p class="empty-message">No hay géneros cargados en el sistema.</p>
-    {% endfor %}
-</div>
+
+        <div class="row g-4">
+            {% for genero in generos %}
+            <div class="col-md-4">
+                <a href="{% url 'products:genero_detalle' genero %}" class="text-decoration-none">
+                    <div class="category-card shadow-sm">
+                        {% if genero.imagen %}
+                            <img src="{{ genero.imagen.url }}" alt="{{ genero.nombre }}" class="category-image">
+                        {% else %}
+                            <div class="category-placeholder d-flex align-items-center justify-content-center">
+                                <span class="text-muted">Imagen no disponible</span>
+                            </div>
+                        {% endif %}
+                        <div class="category-overlay">
+                            <h2 class="fw-bold">{{ genero.nombre }}</h2>
+                            <span class="btn btn-outline-light rounded-0 px-4 mt-3">Ver todo</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
 {% endblock %}

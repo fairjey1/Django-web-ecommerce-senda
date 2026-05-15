@@ -33,45 +33,47 @@
 
 <div style="display: flex; flex-wrap: wrap; gap: 20px;">
     {% for producto in productos %}
-    <a href="{% url 'products:producto_detalle' producto.pk %}" style="text-decoration: none; color: inherit;">
-        <div style="border: 1px solid #ddd; padding: 15px; width: 250px; border-radius: 8px;">
-            
-            {% if producto.imagen %}
-                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="max-width: 100%; border-radius: 4px;">
-            {% else %}
-                <div style="background: #f4f4f4; height: 250px; text-align: center; line-height: 250px; border-radius: 4px;">
-                    Sin Foto
-                </div>
-            {% endif %}
-
-            <h3 style="margin-top: 5px;">{{ producto.nombre }}</h3>
-
-            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+        {% if producto.esta_activo %}
+        <a href="{% url 'products:producto_detalle' producto.pk %}" style="text-decoration: none; color: inherit;">
+            <div style="border: 1px solid #ddd; padding: 15px; width: 250px; border-radius: 8px;">
                 
-                {# 1. VERIFICAMOS SI ES MAYORISTA APROBADO #}
-                {% if request.user.is_authenticated and request.user.esta_aprobado %}
-                    <span style="background: #ffd700; font-size: 0.8em; padding: 2px 6px; border-radius: 4px;">Mayorista</span>
-                    
-                    {% if producto.precio_promocional_mayorista %}
-                        <p style="color: gray; text-decoration: line-through; margin: 0;">${{ producto.precio_mayorista }}</p>
-                        <p style="color: #e60000; font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_promocional_mayorista }}</p>
-                    {% else %}
-                        <p style="font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_mayorista }}</p>
-                    {% endif %}
-                
-                {# 2. SI NO ESTÁ LOGUEADO O NO ESTÁ APROBADO, ES MINORISTA #}
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="max-width: 100%; border-radius: 4px;">
                 {% else %}
-                    {% if producto.precio_promocional_minorista %}
-                        <p style="color: gray; text-decoration: line-through; margin: 0;">${{ producto.precio_minorista }}</p>
-                        <p style="color: #e60000; font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_promocional_minorista }}</p>
-                    {% else %}
-                        <p style="font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_minorista }}</p>
-                    {% endif %}
+                    <div style="background: #f4f4f4; height: 250px; text-align: center; line-height: 250px; border-radius: 4px;">
+                        Sin Foto
+                    </div>
                 {% endif %}
 
-            </div>
-            </div>
-    </a>
+                <h3 style="margin-top: 5px;">{{ producto.nombre }}</h3>
+
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                    
+                    {# 1. VERIFICAMOS SI ES MAYORISTA APROBADO #}
+                    {% if request.user.is_authenticated and request.user.esta_aprobado %}
+                        <span style="background: #ffd700; font-size: 0.8em; padding: 2px 6px; border-radius: 4px;">Mayorista</span>
+                        
+                        {% if producto.precio_promocional_mayorista %}
+                            <p style="color: gray; text-decoration: line-through; margin: 0;">${{ producto.precio_mayorista }}</p>
+                            <p style="color: #e60000; font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_promocional_mayorista }}</p>
+                        {% else %}
+                            <p style="font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_mayorista }}</p>
+                        {% endif %}
+                    
+                    {# 2. SI NO ESTÁ LOGUEADO O NO ESTÁ APROBADO, ES MINORISTA #}
+                    {% else %}
+                        {% if producto.precio_promocional_minorista %}
+                            <p style="color: gray; text-decoration: line-through; margin: 0;">${{ producto.precio_minorista }}</p>
+                            <p style="color: #e60000; font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_promocional_minorista }}</p>
+                        {% else %}
+                            <p style="font-weight: bold; font-size: 1.4em; margin: 0;">${{ producto.precio_minorista }}</p>
+                        {% endif %}
+                    {% endif %}
+
+                </div>
+                </div>
+        </a>
+        {% endif %}
     {% empty %}
         <p>No encontramos productos con estos filtros.</p>
     {% endfor %}

@@ -1,0 +1,166 @@
+:root {
+  /* Paleta Cromática del Manual */
+  --senda-primary: #8796AA;      /* [cite: 1989] */
+  --senda-secondary-1: rgb(240, 220, 150); /* [cite: 1997] */
+  --senda-secondary-2: #BEBED2;  /* [cite: 2001] */
+  
+  /* Tipografías */
+  --font-logo: 'Sylvie', sans-serif;
+  --font-main: 'Montserrat', sans-serif;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: #ffffff;
+  color: #333;
+}
+
+/* Estilos de la Navbar */
+
+/* Ajustes para el logo */
+.navbar-brand img {
+    max-width: 180px; /* Ajustá esto según el ancho de tu logo */
+    height: auto;     /* Mantiene la proporción */
+}
+
+footer img {
+    max-width: 220px;
+    height: auto;
+    filter: brightness(0) invert(0); /* Si el logo es negro y el fondo del footer es oscuro, podés usar invert(1) para hacerlo blanco */
+}
+.navbar-brand .logo-text {
+  font-family: var(--font-logo);
+  font-size: 2rem;
+  letter-spacing: 2px;
+  color: #000;
+  line-height: 1;
+}
+
+.navbar-brand .slogan-text {
+  font-family: var(--font-main);
+  font-size: 0.75rem;
+  color: var(--senda-primary);
+  text-transform: uppercase;
+}
+
+.nav-link {
+  font-family: var(--font-main);
+  font-weight: 500;
+  color: #333 !important;
+  margin: 0 10px;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--senda-primary) !important;
+}
+
+/* Hover específico para Enlaces del Footer */
+footer a:hover {
+    color: var(--senda-primary) !important;
+}
+
+.card {
+    transition: transform 0.3s ease;
+    background: transparent;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-body h6 {
+    font-family: var(--font-main);
+    letter-spacing: 0.5px;
+}
+
+/* Badge de oferta cuadrado para estilo moderno */
+.badge {
+    font-size: 0.7rem;
+    padding: 8px 12px;
+}
+
+/* Contenedor de la imagen en la card */
+.product-img-container {
+    height: 250px;
+    width: 100%;
+    overflow: hidden; /* Corta cualquier excedente si fuera necesario */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff; /* Fondo blanco para prendas con transparencia */
+}
+
+.product-img-container img {
+    width: 100%;
+    height: 100%;
+    /* 'contain' muestra la prenda completa sin recortar nada */
+    /* 'cover' llena todo el espacio (puede recortar bordes pero queda más uniforme) */
+    object-fit: contain; 
+    transition: transform 0.3s ease;
+}
+
+/* Efecto opcional para resaltar el producto al pasar el mouse */
+.card:hover .product-img-container img {
+    transform: scale(1.05);
+}
+
+/* Altura dinámica para el contenedor de imagen del Hero */
+.hero-img-container {
+    height: 250px; /* Altura para celulares */
+    overflow: hidden;
+}
+
+/* En tablets y laptops (pantallas grandes) aumentamos el alto */
+@media (min-width: 992px) {
+    .hero-img-container {
+        height: 400px;
+    }
+}
+
+/* Ajuste opcional para que el título no sea tan grande en celulares */
+@media (max-width: 576px) {
+    .display-5 {
+        font-size: 2.2rem;
+    }
+}
+
+/* Efecto para las tarjetas de género/categoría */
+.category-card {
+    position: relative;
+    height: 450px;
+    overflow: hidden;
+    background-color: var(--senda-secondary-2);
+    transition: all 0.5s ease;
+}
+
+.category-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+
+.category-card:hover img {
+    transform: scale(1.1);
+}
+
+.category-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+}
+
+.category-card:hover .category-overlay {
+    background: rgba(135, 150, 170, 0.4); /* Color primario con transparencia */
+}

@@ -84,11 +84,13 @@ class Pedido(models.Model):
 class ItemPedido(models.Model):
     """Representa cada producto dentro de un pedido."""
     pedido = models.ForeignKey(Pedido, related_name='items', on_delete=models.CASCADE)
-    variante = models.ForeignKey(VarianteProducto, related_name='order_items', on_delete=models.PROTECT)
-    
+    variante = models.ForeignKey(VarianteProducto, related_name='order_items', on_delete=models.SET_NULL, null=True, blank=True)
+    nombre_producto = models.CharField(max_length=200, default='')
+
     # Guardo el precio
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     cantidad = models.PositiveIntegerField(default=1)
+
 
     def __str__(self):
         return f'Item del Pedido {self.pedido.id}'
@@ -96,3 +98,9 @@ class ItemPedido(models.Model):
     def get_costo(self):
         """Calcula el subtotal de este item."""
         return self.precio * self.cantidad
+    
+    def save(self, *args, **kwargs):
+        """Sobrescribe el método save para guardar el nombre del producto."""
+        if self.variante:
+            self.nombre_producto = self.variante.nombre
+        super().save(*args, **kwargs)

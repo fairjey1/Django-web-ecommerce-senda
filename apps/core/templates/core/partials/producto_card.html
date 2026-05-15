@@ -1,0 +1,43 @@
+{% for producto in productos %}
+<div class="col-6 col-md-3 mb-4 card-producto-item">
+    <div class="card border-0 rounded-0 shadow-sm h-100 position-relative">
+        {% if is_oferta or user.is_authenticated and producto.precio_promocional_mayorista or not user.is_authenticated and producto.precio_promocional_minorista %}
+            <span class="badge bg-danger position-absolute top-0 start-0 m-2 rounded-0">{% if is_oferta %}SALE{% else %}OFERTA{% endif %}</span>
+        {% endif %}
+        
+        <div class="product-img-container">
+            {% if producto.imagenes.first %}
+                <img src="{{ producto.imagenes.first.imagen.url }}" alt="{{ producto.nombre }}">
+            {% else %}
+                <span class="text-muted">SENDA</span>
+            {% endif %}
+        </div>
+        
+        <div class="card-body px-0 py-3">
+            <h6 class="fw-bold mb-1 text-truncate">{{ producto.nombre }}</h6>
+            
+            <p class="mb-2" style="font-size: 0.95rem;">
+                {% if user.is_authenticated %}
+                    {% if producto.precio_promocional_mayorista %}
+                        <span class="text-danger fw-bold">$ {{ producto.precio_promocional_mayorista }}</span>
+                        <small class="text-decoration-line-through text-muted ms-1">$ {{ producto.precio_mayorista }}</small>
+                    {% else %}
+                        <span class="fw-bold text-dark">$ {{ producto.precio_mayorista }}</span>
+                    {% endif %}
+                {% else %}
+                    {% if producto.precio_promocional_minorista %}
+                        <span class="text-danger fw-bold">$ {{ producto.precio_promocional_minorista }}</span>
+                        <small class="text-decoration-line-through text-muted ms-1">$ {{ producto.precio_minorista }}</small>
+                    {% else %}
+                        <span class="fw-bold text-dark">$ {{ producto.precio_minorista }}</span>
+                    {% endif %}
+                {% endif %}
+            </p>
+
+            <a href="{% url 'products:producto_detalle' producto.pk %}" class="btn {% if is_oferta %}btn-dark{% else %}btn-outline-dark{% endif %} btn-sm rounded-0 w-100 mt-2">
+                {% if is_oferta %}Comprar ahora{% else %}Detalles{% endif %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endfor %}

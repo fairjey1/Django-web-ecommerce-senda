@@ -1,15 +1,122 @@
 {% extends 'core/base.html' %}
-
-{% block title %}Inicio - {{ site_config.site_name }}{% endblock %}
+{% load static %}
 
 {% block content %}
-    <section>
-        <h2>Bienvenido a nuestra tienda</h2>
-        <p>Aquí irá el banner principal y la presentación de la marca cuando el cliente envíe los activos.</p>
-    </section>
+<section class="hero-section py-5" style="background-color: var(--senda-secondary-2);">
+    <div class="container py-2 py-lg-5">
+        <div class="row align-items-center flex-column-reverse flex-lg-row">
+            <div class="col-12 col-lg-6 text-center text-lg-start mt-4 mt-lg-0">
+                <h1 class="display-5 display-md-4 fw-bold mb-3">
+                    Moda como un <br><span style="color: var(--senda-primary);">recorrido personal.</span>
+                </h1>
+                <p class="lead mb-4 text-muted px-2 px-lg-0">
+                    Indumentaria unisex moderna y accesible para el canal mayorista. Acompañamos a emprendedores con prendas actuales sin perder identidad.
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <a href="{% url 'products:catalogo_generos' %}" class="btn btn-dark btn-lg px-4 me-md-2 rounded-0">Ver Catálogo</a>
+                    <a href="{% url 'users:acceso_mayoristas' %}" class="btn btn-outline-dark btn-lg px-4 rounded-0">Ser Mayorista</a>
+                </div>
+            </div>
+            
+            <div class="col-12 col-lg-6">
+                <a href="{% url 'products:catalogo_generos' %}" class="d-block">
+                <div class="shadow-sm w-100 hero-img-container">
+                    <img src="{% static 'img/hero.webp' %}" alt="Campaña SENDA" class="w-100 h-100" style="object-fit: cover; object-position: center;">
+                </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% if ultimos_ingresos %}
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
+            <h2 class="fw-bold text-uppercase mb-0" style="letter-spacing: 2px;">Ultimos Ingresos</h2>
+            <a href="{% url 'products:catalogo_generos' %}" class="text-dark text-decoration-none small fw-bold text-uppercase">Ver catálogo completo</a>
+        </div>
+        <div class="row" id="ingresos-container">
+            {% include 'core/partials/producto_card.html' with productos=ultimos_ingresos is_oferta=False %}
+        </div>
 
-    <section>
-        <h3>Productos Destacados</h3>
-        <p>Aquí listaremos algunos de los productos disponibles en nuestra tienda.</p>
-    </section>
+        {% if has_more_ingresos %}
+        <div class="text-center mt-2 mb-4">
+            <button class="btn btn-outline-dark rounded-0 px-5 py-2 fw-bold text-uppercase btn-load-more" 
+                    data-tipo="ingresos" data-page="1" data-container="ingresos-container">
+                Ver más 
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+{% for item in ofertas_por_genero %}
+    <div class="row" id="ofertas-container-{{ item.genero.id }}">
+        {% include 'core/partials/producto_card.html' with productos=item.productos is_oferta=True %}
+    </div>
+
+    {% if item.has_more %}
+        <div class="text-center mt-2 mb-4">
+            <button class="btn btn-dark rounded-0 px-5 py-2 fw-bold text-uppercase btn-load-more" 
+                    data-tipo="ofertas" data-genero="{{ item.genero.id }}" data-page="1" data-container="ofertas-container-{{ item.genero.id }}">
+                Cargar más de {{ item.genero.nombre }}
+            </button>
+        </div>
+    {% endif %}
+{% endfor %}
+
+<section class="py-5 text-center text-white" style="background-color: var(--senda-primary);">
+    <div class="container py-3">
+        <h2 class="fw-bold mb-3" style="font-family: var(--font-logo);">¿Sos Distribuidor?</h2>
+        <p class="fs-5 mb-4">Accedé a precios exclusivos para tu local o emprendimiento</p>
+        <a href="{% url 'users:acceso_mayoristas' %}" class="btn btn-light btn-lg px-5 text-uppercase fw-bold rounded-0">Solicitar Acceso</a>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const botonesVerMas = document.querySelectorAll('.btn-load-more');
+    
+    botonesVerMas.forEach(boton => {
+        boton.addEventListener('click', function() {
+            // Recolectar datos del botón
+            const tipo = this.dataset.tipo;
+            const generoId = this.dataset.genero || '';
+            const containerId = this.dataset.container;
+            let nextPage = parseInt(this.dataset.page) + 1;
+            
+            // Estado visual de carga
+            const textoOriginal = this.innerHTML;
+            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...';
+            this.disabled = true;
+            
+            // Llamar a nuestra nueva URL de Django
+            fetch(`/cargar-mas/?tipo=${tipo}&page=${nextPage}&genero_id=${generoId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.html) {
+                        const contenedor = document.getElementById(containerId);
+                        // Pegar las nuevas tarjetas sin borrar las anteriores
+                        contenedor.insertAdjacentHTML('beforeend', data.html);
+                    }
+                    
+                    // Si hay más páginas, actualizamos el contador. Si no, ocultamos el botón.
+                    if (data.has_next) {
+                        this.dataset.page = nextPage;
+                        this.innerHTML = textoOriginal;
+                        this.disabled = false;
+                    } else {
+                        this.remove(); 
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar productos:', error);
+                    this.innerHTML = 'Error de conexión';
+                    this.disabled = false;
+                });
+        });
+    });
+});
+</script>
 {% endblock content %}
