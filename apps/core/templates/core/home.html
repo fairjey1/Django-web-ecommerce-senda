@@ -52,18 +52,30 @@
 {% endif %}
 
 {% for item in ofertas_por_genero %}
-    <div class="row" id="ofertas-container-{{ item.genero.id }}">
-        {% include 'core/partials/producto_card.html' with productos=item.productos is_oferta=True %}
-    </div>
-
-    {% if item.has_more %}
-        <div class="text-center mt-2 mb-4">
-            <button class="btn btn-dark rounded-0 px-5 py-2 fw-bold text-uppercase btn-load-more" 
-                    data-tipo="ofertas" data-genero="{{ item.genero.id }}" data-page="1" data-container="ofertas-container-{{ item.genero.id }}">
-                Cargar más de {{ item.genero.nombre }}
-            </button>
+<section class="py-5" style="background-color: #fcfcfc;">
+    <div class="container">
+        
+        <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
+            <h2 class="fw-bold text-uppercase mb-0" style="letter-spacing: 2px; color: var(--senda-primary);">
+                Ofertas <span class="fw-light text-muted">| {{ item.genero.nombre }}</span>
+            </h2>
         </div>
-    {% endif %}
+
+        <div class="row" id="ofertas-container-{{ item.genero.id }}">
+            {% include 'core/partials/producto_card.html' with productos=item.productos is_oferta=True %}
+        </div>
+
+        {% if item.has_more %}
+            <div class="text-center mt-4 mb-2">
+                <button class="btn btn-dark rounded-0 px-5 py-2 fw-bold text-uppercase btn-load-more" 
+                        data-tipo="ofertas" data-genero="{{ item.genero.id }}" data-page="1" data-container="ofertas-container-{{ item.genero.id }}">
+                    Ver más
+                </button>
+            </div>
+        {% endif %}
+        
+    </div>
+</section>
 {% endfor %}
 
 <section class="py-5 text-center text-white" style="background-color: var(--senda-primary);">
@@ -74,49 +86,5 @@
     </div>
 </section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const botonesVerMas = document.querySelectorAll('.btn-load-more');
-    
-    botonesVerMas.forEach(boton => {
-        boton.addEventListener('click', function() {
-            // Recolectar datos del botón
-            const tipo = this.dataset.tipo;
-            const generoId = this.dataset.genero || '';
-            const containerId = this.dataset.container;
-            let nextPage = parseInt(this.dataset.page) + 1;
-            
-            // Estado visual de carga
-            const textoOriginal = this.innerHTML;
-            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...';
-            this.disabled = true;
-            
-            // Llamar a nuestra nueva URL de Django
-            fetch(`/cargar-mas/?tipo=${tipo}&page=${nextPage}&genero_id=${generoId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.html) {
-                        const contenedor = document.getElementById(containerId);
-                        // Pegar las nuevas tarjetas sin borrar las anteriores
-                        contenedor.insertAdjacentHTML('beforeend', data.html);
-                    }
-                    
-                    // Si hay más páginas, actualizamos el contador. Si no, ocultamos el botón.
-                    if (data.has_next) {
-                        this.dataset.page = nextPage;
-                        this.innerHTML = textoOriginal;
-                        this.disabled = false;
-                    } else {
-                        this.remove(); 
-                    }
-                })
-                .catch(error => {
-                    console.error('Error al cargar productos:', error);
-                    this.innerHTML = 'Error de conexión';
-                    this.disabled = false;
-                });
-        });
-    });
-});
-</script>
+
 {% endblock content %}

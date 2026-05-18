@@ -8,8 +8,8 @@ urlpatterns = [
 
     path('detalle/<int:pk>/', ProductoDetailView.as_view(), name='producto_detalle'),
     
-    path('<slug:genero>/', GeneroDetalleView.as_view(), name='genero_detalle'),
+    path('<slug:slug>/', GeneroDetalleView.as_view(), name='genero_detalle'),
     
-    path('<slug:genero>/<slug:slug>/', CategoriaPorGeneroView.as_view(), name='categoria_por_genero'),
+    path('<slug:genero_slug>/<slug:slug>/', CategoriaPorGeneroView.as_view(), name='categoria_por_genero'),
 
 ]

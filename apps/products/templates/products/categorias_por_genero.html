@@ -1,32 +1,79 @@
 {% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ genero.nombre }} | SENDA{% endblock %}
 
 {% block content %}
-<nav class="breadcrumbs">
-    <a href="{% url 'products:catalogo_generos' %}">Inicio</a> / {{ genero }}
-</nav>
+<div class="container-fluid bg-white py-3 border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small text-uppercase" style="letter-spacing: 1px;">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-muted text-decoration-none">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'products:catalogo_generos' %}" class="text-muted text-decoration-none">Catálogo</a></li>
+                <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">{{ genero.nombre }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
 
-<h1 class="page-title">Categorías de {{ genero }}</h1>
+<div class="container py-4 py-md-5">
+    
+    <div class="text-center mb-4">
+        <h1 class="display-6 fw-bold text-uppercase mb-2" style="letter-spacing: 3px;">
+            Catálogo {{ genero.nombre }}
+        </h1>
+        <p class="text-muted small text-uppercase" style="letter-spacing: 1px;">Cada paso cuenta</p>
+    </div>
 
-<ul class="categorias-list">
-    {% for cat in categorias %}
-        <li class="categoria-item">
-            <h3 class="categoria-title">
-                <a href="{% url 'products:categoria_por_genero' genero cat.slug %}">
-                    {{ cat.nombre }}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex flex-nowrap overflow-x-auto pb-2 justify-content-start justify-content-md-center scroll-clean border-bottom">
+                <a href="{% url 'products:genero_detalle' genero.slug %}" 
+                   class="btn-nav-categoria active-cat text-decoration-none mx-2 text-nowrap pb-2">
+                    Ver Todo
                 </a>
-            </h3>
-            
-            {% if cat.subcategorias.all %}
-                <small class="subcategorias-info">
-                    Incluye: 
-                    {% for sub in cat.subcategorias.all %}
-                        {{ sub.nombre }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </small>
-            {% endif %}
-        </li>
-    {% empty %}
-        <p class="empty-message">Aún no hay productos disponibles para este género.</p>
-    {% endfor %}
-</ul>
-{% endblock %}
+                
+                {% for cat in categorias %}
+                    <a href="{% url 'products:categoria_por_genero' genero.slug cat.slug %}" 
+                       class="btn-nav-categoria text-decoration-none mx-2 text-nowrap pb-2">
+                        {{ cat.nombre }}
+                    </a>
+                {% empty %}
+                    <span class="text-muted small">Cargando categorías...</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="text-muted small text-uppercase" style="letter-spacing: 1px;">
+            {{ productos.paginator.count }} Productos encontrados
+        </div>
+        
+        <div class="d-flex align-items-center">
+            <label for="ordenar" class="form-label small text-uppercase text-muted m-0 me-2 d-none d-sm-inline-block" style="letter-spacing: 1px; white-space: nowrap;">Ordenar por:</label>
+            <form method="get" action="" id="form-ordenar">
+                <select name="orden" id="ordenar" class="form-select form-select-sm rounded-0 border-dark shadow-none" onchange="this.form.submit()">
+                    <option value="novedades" {% if request.GET.orden == 'novedades' %}selected{% endif %}>Novedades</option>
+                    <option value="precio_asc" {% if request.GET.orden == 'precio_asc' %}selected{% endif %}>Menor Precio</option>
+                    <option value="precio_desc" {% if request.GET.orden == 'precio_desc' %}selected{% endif %}>Mayor Precio</option>
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <div class="row" id="productos-genero-container">
+        {% include 'core/partials/producto_card.html' with productos=productos is_oferta=False %}
+    </div>
+    
+    {% if has_next %}
+    <div class="text-center mt-5">
+        <button class="btn btn-outline-dark rounded-0 px-5 py-2 fw-bold text-uppercase btn-load-more"
+                data-tipo="genero" data-genero="{{ genero.id }}" data-page="1" data-container="productos-genero-container">
+            Ver más productos
+        </button>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock content %}

@@ -34,5 +34,50 @@
     {% include 'core/footer.html' %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const botonesVerMas = document.querySelectorAll('.btn-load-more');
+    
+    botonesVerMas.forEach(boton => {
+        boton.addEventListener('click', function() {
+            // Recolectar datos del botón
+            const tipo = this.dataset.tipo;
+            const generoId = this.dataset.genero || '';
+            const containerId = this.dataset.container;
+            let nextPage = parseInt(this.dataset.page) + 1;
+            
+            // Estado visual de carga
+            const textoOriginal = this.innerHTML;
+            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...';
+            this.disabled = true;
+            
+            // Llamar a nuestra nueva URL de Django
+            fetch(`/cargar-mas/?tipo=${tipo}&page=${nextPage}&genero_id=${generoId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.html) {
+                        const contenedor = document.getElementById(containerId);
+                        // Pegar las nuevas tarjetas sin borrar las anteriores
+                        contenedor.insertAdjacentHTML('beforeend', data.html);
+                    }
+                    
+                    // Si hay más páginas, actualizamos el contador. Si no, ocultamos el botón.
+                    if (data.has_next) {
+                        this.dataset.page = nextPage;
+                        this.innerHTML = textoOriginal;
+                        this.disabled = false;
+                    } else {
+                        this.remove(); 
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar productos:', error);
+                    this.innerHTML = 'Error de conexión';
+                    this.disabled = false;
+                });
+        });
+    });
+});
+</script>
 </body>
 </html>

@@ -7,13 +7,15 @@ from django.views.generic import DetailView
 from django.db import models
 from .models import Categoria, Producto, Genero
 
+from django.core.paginator import Paginator
+
 class CatalogoGenerosView(View):
     """
     Vista Inicial: El usuario elige Hombre, Mujer o Unisex.
     """
     template_name = 'products/selector_generos.html'
     def get(self, request):
-        opciones_genero = Genero.objects.values_list('nombre', flat=True).distinct()
+        opciones_genero = Genero.objects.all()
         return render(request, self.template_name, {'generos': opciones_genero})
 
 class GeneroDetalleView(View):
@@ -23,16 +25,43 @@ class GeneroDetalleView(View):
     """
     template_name = 'products/categorias_por_genero.html'
 
-    def get(self, request, genero):
+    def get(self, request, slug):
+        
+        genero = get_object_or_404(Genero, slug=slug)
+        
         categorias_con_productos = Categoria.objects.filter(
             categoria_padre__isnull=True,
-            productos__generos__nombre__iexact=genero,
+            productos__generos=genero,
             productos__esta_activo=True
         ).distinct()
 
+        productos_list = Producto.objects.filter(
+            generos=genero,
+            esta_activo=True
+        ).distinct()
+
+        orden = request.GET.get('orden', 'novedades')
+        if orden == 'precio_asc':
+            productos_list = productos_list.order_by('precio_minorista')
+        elif orden == 'precio_desc':
+            productos_list = productos_list.order_by('-precio_minorista')
+        else:
+            productos_list = productos_list.order_by('-id')  
+
+        # Ver Mas
+        page = request.GET.get('page', 1)
+        paginator = Paginator(productos_list, 8)
+        
+        try:
+            productos_paginados = paginator.page(page)
+        except:
+            productos_paginados = paginator.page(1)
+
         context = {
             'genero': genero,
-            'categorias': categorias_con_productos
+            'categorias': categorias_con_productos,
+            'productos': productos_paginados,              
+            'has_next': productos_paginados.has_next()
         }
         return render(request, self.template_name, context)
 
@@ -42,13 +71,14 @@ class CategoriaPorGeneroView(View):
     """
     template_name = 'products/listado_productos.html'
 
-    def get(self, request, genero, slug):
+    def get(self, request, genero_slug, slug):
+        genero = get_object_or_404(Genero, slug=genero_slug)
         categoria = get_object_or_404(Categoria, slug=slug)
         
         # Filtramos por categoría Y por el género seleccionado en el paso anterior
         productos = Producto.objects.filter(
             categorias=categoria, 
-            generos__nombre__iexact=genero, 
+            generos__nombre__iexact=genero.nombre, 
             esta_activo=True
         )
 

@@ -32,19 +32,38 @@ def home(request):
     return render(request, 'core/home.html', context)
 
 def cargar_mas_productos(request):
-    """Vista que devuelve un fragmento HTML con los nuevos productos"""
+    """Vista global que devuelve un fragmento HTML con los nuevos productos (AJAX)"""
     tipo = request.GET.get('tipo')
     page = int(request.GET.get('page', 1))
+    orden = request.GET.get('orden', 'novedades') # Capturamos cómo quiere ordenarlo
     
     if tipo == 'ingresos':
         productos_list = Producto.objects.filter(categorias__nombre__icontains="Ultimos Ingresos", esta_activo=True).distinct()
         per_page = 8
         is_oferta = False
+        
     elif tipo == 'ofertas':
         genero_id = request.GET.get('genero_id')
         productos_list = Producto.objects.filter(generos__id=genero_id, categorias__nombre__icontains="Ofertas", esta_activo=True).distinct()
         per_page = 4
         is_oferta = True
+        
+    # NUEVO: Lógica para la página de categorías por género
+    elif tipo == 'genero':
+        genero_id = request.GET.get('genero_id')
+        productos_list = Producto.objects.filter(generos__id=genero_id, esta_activo=True).distinct()
+        
+        # Le aplicamos el mismo ordenamiento que en la vista principal
+        if orden == 'precio_asc':
+            productos_list = productos_list.order_by('precio_minorista')
+        elif orden == 'precio_desc':
+            productos_list = productos_list.order_by('-precio_minorista')
+        else:
+            productos_list = productos_list.order_by('-id')
+            
+        per_page = 8
+        is_oferta = False
+        
     else:
         return JsonResponse({'error': 'Tipo no válido'}, status=400)
         
@@ -60,7 +79,7 @@ def cargar_mas_productos(request):
         'user': request.user,
         'is_oferta': is_oferta
     }
-
+    
     html = render_to_string('core/partials/producto_card.html', context, request=request)
     
     return JsonResponse({'html': html, 'has_next': productos.has_next()})
