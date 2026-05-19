@@ -22,20 +22,26 @@
         <h1 class="display-6 fw-bold text-uppercase mb-2" style="letter-spacing: 3px;">
             Catálogo {{ genero.nombre }}
         </h1>
-        <p class="text-muted small text-uppercase" style="letter-spacing: 1px;">Cada paso cuenta</p>
+    </div>
+
+    <div class="d-md-none text-end mb-1">
+        <small class="text-muted" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">
+            Desliza <i class="fa-solid fa-arrow-right-long ms-1"></i>
+        </small>
     </div>
 
     <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex flex-nowrap overflow-x-auto pb-2 justify-content-start justify-content-md-center scroll-clean border-bottom">
+            <div class="d-flex flex-nowrap flex-md-wrap overflow-x-auto overflow-md-hidden pb-2 justify-content-start justify-content-md-center scroll-clean border-bottom">
+                
                 <a href="{% url 'products:genero_detalle' genero.slug %}" 
-                   class="btn-nav-categoria active-cat text-decoration-none mx-2 text-nowrap pb-2">
+                   class="btn-nav-categoria active-cat text-decoration-none mx-2 mx-md-3 text-nowrap pb-1 mb-2 mb-md-0">
                     Ver Todo
                 </a>
                 
                 {% for cat in categorias %}
                     <a href="{% url 'products:categoria_por_genero' genero.slug cat.slug %}" 
-                       class="btn-nav-categoria text-decoration-none mx-2 text-nowrap pb-2">
+                       class="btn-nav-categoria text-decoration-none mx-2 mx-md-3 text-nowrap pb-1 mb-2 mb-md-0">
                         {{ cat.nombre }}
                     </a>
                 {% empty %}

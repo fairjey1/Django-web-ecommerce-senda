@@ -67,36 +67,54 @@ class GeneroDetalleView(View):
 
 class CategoriaPorGeneroView(View):
     """
-    Muestra los productos de una categoría específica filtrados por género.
+    Muestra los productos filtrados por un Género y una Categoría Padre específica,
+    permitiendo sub-filtrar por subcategorías y ordenar los resultados.
     """
     template_name = 'products/listado_productos.html'
 
     def get(self, request, genero_slug, slug):
-        genero = get_object_or_404(Genero, slug=genero_slug)
-        categoria = get_object_or_404(Categoria, slug=slug)
+        genero_obj = get_object_or_404(Genero, slug=genero_slug)
+        categoria_actual = get_object_or_404(Categoria, slug=slug, categoria_padre__isnull=True)
         
-        # Filtramos por categoría Y por el género seleccionado en el paso anterior
-        productos = Producto.objects.filter(
-            categorias=categoria, 
-            generos__nombre__iexact=genero.nombre, 
+        subcategorias = Categoria.objects.filter(categoria_padre=categoria_actual)
+        
+        productos_list = Producto.objects.filter(
+            generos=genero_obj,
+            categorias=categoria_actual,
             esta_activo=True
-        )
+        ).distinct()
 
-        # Lógica de ordenado
-        orden = request.GET.get('orden', 'recientes')
+        subcat_slug = request.GET.get('subcategoria')
+        subcategoria_actual = None
+        
+        subcat_slug = request.GET.get('subcategoria')
+        if subcat_slug:
+            productos_list = productos_list.filter(categorias__slug=subcat_slug)
+            subcategoria_actual = get_object_or_404(Categoria, slug=subcat_slug, categoria_padre=categoria_actual)
+            
+        orden = request.GET.get('orden', 'novedades')
         if orden == 'precio_asc':
-            productos = productos.order_by('precio_minorista')
+            productos_list = productos_list.order_by('precio_minorista')
         elif orden == 'precio_desc':
-            productos = productos.order_by('-precio_minorista')
+            productos_list = productos_list.order_by('-precio_minorista')
         else:
-            productos = productos.order_by('-fecha_creacion')
+            productos_list = productos_list.order_by('-id')
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(productos_list, 8)
+        
+        try:
+            productos_paginados = paginator.page(page)
+        except:
+            productos_paginados = paginator.page(1)
 
         context = {
-            'genero': genero,
-            'categoria': categoria,
-            'productos': productos,
-            'subcategorias': categoria.subcategorias.all(), # Para el filtro lateral
-            'orden_actual': orden
+            'genero': genero_obj,
+            'categoria_actual': categoria_actual,
+            'subcategoria_actual': subcategoria_actual,
+            'subcategorias': subcategorias,
+            'productos': productos_paginados,
+            'has_next': productos_paginados.has_next()
         }
         return render(request, self.template_name, context)
 

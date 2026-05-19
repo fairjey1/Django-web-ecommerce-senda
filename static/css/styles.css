@@ -282,3 +282,78 @@ footer a:hover {
 .scroll-clean {
     -webkit-overflow-scrolling: touch;
 }
+
+/* =========================================
+   NAVEGACIÓN DE CATEGORÍAS (Catálogo)
+   ========================================= */
+
+a.btn-nav-categoria {
+    font-family: var(--font-main);
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: #6c757d !important; /* Gris neutro para matar el azul por defecto */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+/* Hover con el color Primario de la marca (#8796AA) */
+a.btn-nav-categoria:hover {
+    color: var(--senda-primary) !important;
+    border-bottom: 2px solid var(--senda-primary);
+}
+
+/* Categoría Seleccionada / Activa */
+a.btn-nav-categoria.active-cat {
+    color: #000000 !important;
+    font-weight: 700;
+    border-bottom: 2px solid #000000;
+}
+
+/* Estilos de la barra deslizante (solo afecta a móviles gracias a las clases de Bootstrap) */
+.scroll-clean::-webkit-scrollbar {
+    height: 0px; /* Ocultamos la barra física para que quede super limpio */
+}
+
+.scroll-clean {
+    -webkit-overflow-scrolling: touch; /* Movimiento suave en iPhone/Android */
+    scrollbar-width: none; /* Para Firefox */
+}
+
+/* =========================================
+   FICHA DE DETALLE DE PRODUCTO
+   ========================================= */
+
+
+/* Galería de Imágenes */
+.main-image-container { width: 100%; height: 500px; overflow: hidden; background-color: #ffffff; }
+.main-image-container img { width: 100%; height: 100%; object-fit: contain; }
+.thumbnail-container { cursor: pointer; width: 80px; height: 80px; overflow: hidden; border: 1px solid #e0e0e0; transition: border-color 0.3s ease; }
+.thumbnail-container:hover, .thumbnail-container.active-thumb { border-color: #000000; }
+.thumbnail-container img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Pelotitas de Colores */
+.color-swatch-container { display: inline-block; margin-right: 12px; margin-bottom: 12px; position: relative; }
+.color-swatch-label { width: 36px; height: 36px; border-radius: 50%; display: block; cursor: pointer; border: 1px solid rgba(0, 0, 0, 0.15); transition: all 0.2s ease; }
+.color-swatch-container input[type="radio"] { display: none; }
+.color-swatch-container input[type="radio"]:checked + .color-swatch-label { transform: scale(1.1); box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #000000; }
+
+/* Cajas Planas de Talles */
+.size-swatch-container { display: inline-block; margin-right: 8px; margin-bottom: 8px; }
+.size-swatch-label { padding: 10px 20px; border: 1px solid #cccccc; display: block; cursor: pointer; font-family: var(--font-main); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; transition: all 0.2s ease; }
+.size-swatch-container input[type="radio"] { display: none; }
+.size-swatch-container input[type="radio"]:checked + .size-swatch-label { background-color: #000000; color: #ffffff; border-color: #000000; }
+
+/* ESTILOS DE BLOQUEO DE STOCK AUTOMÁTICO (NUEVO) */
+input[type="radio"]:disabled + .color-swatch-label,
+input[type="radio"]:disabled + .size-swatch-label {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background-color: #f8f9fa;
+    color: #a0a0a0;
+}
+
+/* Cantidad */
+.quantity-input-group { max-width: 130px; }
+.quantity-input-group .btn, .quantity-input-group .form-control { border-color: #cccccc; color: #000; font-weight: 600; }

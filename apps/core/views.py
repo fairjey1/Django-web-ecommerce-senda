@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
+from httpx import request
 from apps.products.models import Producto, Genero
 
 def home(request):
@@ -48,12 +49,35 @@ def cargar_mas_productos(request):
         per_page = 4
         is_oferta = True
         
-    # NUEVO: Lógica para la página de categorías por género
     elif tipo == 'genero':
         genero_id = request.GET.get('genero_id')
         productos_list = Producto.objects.filter(generos__id=genero_id, esta_activo=True).distinct()
         
-        # Le aplicamos el mismo ordenamiento que en la vista principal
+        if orden == 'precio_asc':
+            productos_list = productos_list.order_by('precio_minorista')
+        elif orden == 'precio_desc':
+            productos_list = productos_list.order_by('-precio_minorista')
+        else:
+            productos_list = productos_list.order_by('-id')
+            
+        per_page = 8
+        is_oferta = False
+
+    elif tipo == 'categoria':
+        genero_id = request.GET.get('genero_id')
+        categoria_id = request.GET.get('categoria_id')
+        subcategoria_slug = request.GET.get('subcategoria') 
+        
+        # Filtro base
+        productos_list = Producto.objects.filter(
+            generos__id=genero_id, 
+            categorias__id=categoria_id, 
+            esta_activo=True
+        ).distinct()
+        
+        if subcategoria_slug:
+            productos_list = productos_list.filter(categorias__slug=subcategoria_slug)
+        
         if orden == 'precio_asc':
             productos_list = productos_list.order_by('precio_minorista')
         elif orden == 'precio_desc':
