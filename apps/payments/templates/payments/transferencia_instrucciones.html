@@ -1,28 +1,65 @@
 {% extends 'core/base.html' %}
 
+{% block title %}Instrucciones de Transferencia | SENDA{% endblock %}
+
 {% block content %}
-<div class="checkout-container" style="max-width: 600px; margin: 0 auto; text-align: center;">
-    <h1 style="color: #28a745;">¡Orden #{{ pedido.id }} Reservada!</h1>
-    
-    <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-        <strong>Atención:</strong> Tu pedido y el stock están reservados en estado "Pendiente de Pago". 
-        Tienes <strong>24 horas</strong> para realizar la transferencia, de lo contrario la orden se cancelará automáticamente.
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0 rounded-4 overflow-hidden">
+                
+                <div class="bg-light p-4 text-center border-bottom">
+                    <i class="bi bi-bank2 mb-3 d-inline-block" style="font-size: 3.5rem; color: var(--color-primario, #8796AA);"></i>
+                    <h2 class="fw-bold text-dark mb-1">¡Orden #{{ pedido.id }} Reservada!</h2>
+                    <p class="text-secondary mb-0">Sigue las instrucciones para completar tu compra.</p>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    
+                    <div class="alert px-4 py-3 rounded-3 mb-4 d-flex align-items-center shadow-sm" style="background-color: rgba(240, 220, 150, 0.2); border: 1px solid var(--color-secundario, rgb(240, 220, 150)); color: #856404;">
+                        <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+                        <div>
+                            <strong>Atención:</strong> Tu pedido y el stock están reservados en estado "Pendiente de Pago". 
+                            Tienes <strong>24 horas</strong> para realizar la transferencia, de lo contrario la orden se cancelará automáticamente.
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-5">
+                        <h5 class="text-secondary mb-2 text-uppercase fw-semibold" style="letter-spacing: 1px;">Total a transferir</h5>
+                        <h1 class="fw-bold mb-2" style="color: var(--color-primario, #8796AA); font-size: 3.5rem;">${{ pedido.get_total_costo }}</h1>
+                        <div class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill fs-6">
+                            <i class="bi bi-tag-fill me-1"></i> Te ahorraste ${{ pedido.descuento }}
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3 text-dark">
+                        <i class="bi bi-wallet2 me-2" style="color: var(--color-primario, #8796AA);"></i>Datos para transferir:
+                    </h5>
+                    <div class="bg-light p-4 rounded-3 border mb-5">
+                        <p class="font-monospace text-dark mb-0 fs-6" style="line-height: 1.8;">
+                            {{ config.datos_bancarios|linebreaksbr }}
+                        </p>
+                    </div>
+
+                    <hr class="my-4 text-muted">
+                    <div class="text-center mt-4">
+                        <h5 class="fw-bold mb-3 text-dark">Último paso obligatorio:</h5>
+                        <p class="text-secondary mb-4">Para confirmar tu pago y que despachemos tu pedido, envíanos el comprobante por WhatsApp con tu número de orden.</p>
+                        
+                        <a href="https://wa.me/5491123456789?text=Hola%20SENDA,%20ya%20pagué%20mi%20orden%20%23{{ pedido.id }}.%20Adjunto%20el%20comprobante:" target="_blank" class="btn btn-lg text-white rounded-3 shadow text-uppercase fw-bold px-4 py-3" style="background-color: #25D366; letter-spacing: 1px;">
+                            <i class="bi bi-whatsapp me-2"></i> Enviar Comprobante
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'core:home' %}" class="text-muted text-decoration-none fw-semibold">
+                    <i class="bi bi-arrow-left me-1"></i> Volver a la Tienda
+                </a>
+            </div>
+            
+        </div>
     </div>
-
-    <h2>Total a pagar (con descuento): <span style="color: #d9534f;">${{ pedido.get_total_costo }}</span></h2>
-    <p style="color: #666;">Te ahorraste ${{ pedido.descuento }} por elegir este método.</p>
-
-    <div style="background: #f8f9fa; padding: 20px; border: 1px solid #ddd; text-align: left; margin: 20px 0;">
-        <h3>Datos para transferir:</h3>
-        <p style="font-family: monospace; font-size: 1.1em;">{{ config.datos_bancarios|linebreaksbr }}</p>
-    </div>
-
-    <h3>Último paso obligatorio:</h3>
-    <p>Para confirmar tu pago y que despachemos tu pedido, envíanos el comprobante por WhatsApp haciendo clic aquí:</p>
-    
-    <a href="https://wa.me/{{ config.whatsapp_comprobantes }}?text={{ mensaje_ws }}" target="_blank" 
-       style="display: inline-block; background-color: #25D366; color: white; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 1.2em;">
-        Enviar Comprobante por WhatsApp
-    </a>
 </div>
 {% endblock %}

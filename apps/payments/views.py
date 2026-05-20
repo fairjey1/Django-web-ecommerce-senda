@@ -57,7 +57,8 @@ def procesar_mercadopago(request, pedido_id):
             "currency_id": "ARS"
         })
 
-    host = request.build_absolute_uri('/')[:-1]
+    #host = request.build_absolute_uri('/')[:-1]
+    host = "https://juicy-canary-circulate.ngrok-free.dev"
 
     preference_data = {
         "items": items_mp,

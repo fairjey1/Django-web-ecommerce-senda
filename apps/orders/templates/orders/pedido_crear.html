@@ -1,41 +1,144 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block content %}
-<div class="checkout-container">
-    <h1>Finalizar Pedido</h1>
+{% block title %}Finalizar Compra | SENDA{% endblock %}
 
-    <div style="display: flex; gap: 40px;">
-        <div style="flex: 1;">
-            <h3>Datos de Facturación y Envío</h3>
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn-pago">Confirmar Pedido</button>
-            </form>
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-5 text-center fw-bold" style="color: var(--color-primario, #8796AA);">Finalizar tu Pedido</h1>
+
+    <div class="row gy-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-4 p-4">
+                <h4 class="mb-4 fw-bold text-dark">
+                    <i class="bi bi-geo-alt-fill me-2" style="color: var(--color-primario, #8796AA);"></i>Datos de Entrega y Facturación
+                </h4>
+                
+                <form method="POST" id="form-pedido" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger rounded-3 mb-3">
+                            {% for error in form.non_field_errors %}
+                                <p class="mb-0 small">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3" id="django-form-fields">
+                        {% for field in form %}
+                            <div class="{% if field.name == 'direccion' or field.name == 'notas' or field.name == 'comentarios' %}col-12{% else %}col-md-6{% endif %}">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-secondary small text-uppercase">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                
+                                <div class="field-container">
+                                    {{ field }}
+                                </div>
+
+                                {% if field.help_text %}
+                                    <div class="form-text text-muted" style="font-size: 0.8rem;">{{ field.help_text }}</div>
+                                {% endif %}
+                                
+                                {% for error in field.errors %}
+                                    <div class="text-danger small mt-1">
+                                        <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <hr class="my-4 text-muted">
+
+                    <div class="d-grid mt-2">
+                        <button type="submit" class="btn btn-lg text-white rounded-3 shadow-sm text-uppercase fw-bold py-3" style="background-color: var(--color-primario, #8796AA); letter-spacing: 1px;">
+                            Confirmar y Procesar Pedido
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
-        <div style="flex: 0.5; background: #f9f9f9; padding: 20px; border-radius: 8px;">
-            <h3>Resumen de Pago</h3>
-            <ul>
-                {% for item in carrito %}
-                    <li>{{ item.cantidad }}x {{ item.variante.producto.nombre }} - ${{ item.precio_total }}</li>
-                {% endfor %}
-            </ul>
-            <hr>
-            <p>Subtotal productos: ${{ carrito.get_total_precio }}</p>
-            
-            <p>Envío: 
-                {% if costo_envio == 0 %}
-                    <span style="color: green;">¡GRATIS!</span>
-                {% else %}
-                    ${{ costo_envio }}
-                {% endif %}
-            </p>
-            
-            <hr>
-            <h4 style="font-size: 1.5em;">Total Final: ${{ carrito.get_total_final }}</h4>
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-4 fw-bold text-dark">
+                        <i class="bi bi-bag-check-fill me-2" style="color: var(--color-primario, #8796AA);"></i>Resumen de Compra
+                    </h4>
+                    
+                    <div class="overflow-auto pe-1 mb-4" style="max-height: 320px;">
+                        {% for item in carrito %}
+                            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-light">
+                                <div class="me-3">
+                                    <h6 class="mb-1 fw-bold text-dark small">{{ item.variante.producto.nombre }}</h6>
+                                    <small class="text-muted d-block mb-1" style="font-size: 0.8rem;">
+                                        Talle: {{ item.variante.talle }} | Color: {{ item.variante.color.nombre }}
+                                    </small>
+                                    <small class="text-secondary" style="font-size: 0.8rem;">
+                                        Cantidad: {{ item.cantidad }} x ${{ item.precio }}
+                                    </small>
+                                </div>
+                                <span class="fw-bold text-dark small">${{ item.precio_total }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <ul class="list-group list-group-flush mb-4 bg-transparent">
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 border-light text-secondary small">
+                            Costo de Envío (Estimado)
+                            {% if costo_envio == 0 %}
+                                <span class="text-success fw-bold">¡GRATIS!</span>
+                            {% else %}
+                                <span class="fw-semibold text-dark">${{ costo_envio }}</span>
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 fw-bold border-bottom-0 pb-0 mt-2">
+                            <span class="fs-5 text-dark">Total a Pagar</span>
+                            <span class="fs-4" style="color: var(--color-primario, #8796AA);">${{ carrito.get_total_final }}</span>
+                        </li>
+                    </ul>
+
+                    <div class="d-grid">
+                        <a href="{% url 'cart:carrito_detalle' %}" class="btn btn-outline-secondary btn-sm rounded-3 text-uppercase fw-bold py-2" style="letter-spacing: 0.5px;">
+                            <i class="bi bi-arrow-left me-1"></i> Modificar mi Carrito
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Seleccionamos todos los elementos de formulario generados en el bloque
+        const formFields = document.querySelectorAll('#django-form-fields input, #django-form-fields select, #django-form-fields text area');
+        
+        formFields.forEach(field => {
+            // Aplicamos clases de Bootstrap según el tipo de campo
+            if (field.type === 'checkbox' || field.type === 'radio') {
+                field.classList.add('form-check-input');
+            } else {
+                field.classList.add('form-control');
+            }
+            
+            // Estilo visual sutil para que combine con la paleta SENDA
+            field.style.borderColor = 'rgba(135, 150, 170, 0.4)';
+            field.style.borderRadius = '8px';
+            field.style.padding = '10px 14px';
+            
+            // Efecto focus elegante alineado al color primario
+            field.addEventListener('focus', () => {
+                field.style.borderColor = 'var(--color-primario, #8796AA)';
+                field.style.boxShadow = '0 0 0 0.25rem rgba(135, 150, 170, 0.15)';
+            });
+            field.addEventListener('blur', () => {
+                field.style.borderColor = 'rgba(135, 150, 170, 0.4)';
+                field.style.boxShadow = 'none';
+            });
+        });
+    });
+</script>
 {% endblock %}

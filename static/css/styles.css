@@ -357,3 +357,35 @@ input[type="radio"]:disabled + .size-swatch-label {
 /* Cantidad */
 .quantity-input-group { max-width: 130px; }
 .quantity-input-group .btn, .quantity-input-group .form-control { border-color: #cccccc; color: #000; font-weight: 600; }
+
+.whatsapp-btn-float {
+        position: fixed;
+        bottom: 30px; /* Distancia desde abajo */
+        right: 30px;  /* Distancia desde la derecha */
+        width: 60px;
+        height: 60px;
+        background-color: #25D366; /* Verde oficial de WhatsApp */
+        color: #ffffff !important;
+        border-radius: 50%;
+        font-size: 32px;
+        z-index: 99999; /* Se asegura de flotar por encima de footers, tablas y carritos */
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+/* Efecto de agrandado suave y sutil al pasar el mouse */
+.whatsapp-btn-float:hover {
+    transform: scale(1.1);
+    background-color: #20ba5a;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2) !important;
+}
+
+/* Adaptación responsive para pantallas de celulares */
+@media (max-width: 576px) {
+    .whatsapp-btn-float {
+        bottom: 20px;
+        right: 20px;
+        width: 55px;
+        height: 55px;
+        font-size: 28px;
+    }
+}

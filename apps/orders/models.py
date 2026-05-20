@@ -102,5 +102,5 @@ class ItemPedido(models.Model):
     def save(self, *args, **kwargs):
         """Sobrescribe el método save para guardar el nombre del producto."""
         if self.variante:
-            self.nombre_producto = self.variante.nombre
+            self.nombre_producto = self.variante.producto.nombre
         super().save(*args, **kwargs)

@@ -28,7 +28,7 @@ class AccesoMayoristasView(CreateView):
         login(self.request, self.object) # logueamos al nuevo usuario
         messages.success(
             self.request, 
-            "¡Bienvenido a Senda! Tu cuenta ha sido creada con éxito. Ya podes iniciar sesión y acceder a los precios mayoristas."
+            "¡Bienvenido a Senda! Tu cuenta ha sido creada con éxito. Accediste a los precios mayoristas."
         )
 
         return response
@@ -41,6 +41,7 @@ class CustomLoginView(LoginView):
     form_class = CustomLoginForm
 
     # requiere que el usuario este aprobado para poder loguearse
+    # por pedido del cliente los usuarios se aprueban automaticamente, pero dejo este metodo por si en algun momento se quiere cambiar eso
     def form_valid(self, form):
         user = form.get_user()
         if user.esta_aprobado:

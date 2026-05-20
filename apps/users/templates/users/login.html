@@ -1,17 +1,64 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
-{% block title %}Iniciar Sesión | {{site_config.site_name}} {% endblock %}
+{% block title %}Iniciar Sesión | SENDA{% endblock %}
 
 {% block content %}
-<h2>Iniciar Sesión</h2>
-<form method="post">
-    {% csrf_token %}
-    <!--Mostrar email en lugar de username-->
-    {{ form.as_p }}
-    <button type="submit">Iniciar Sesión</button>
-</form>
-<!--Si no tiene cuenta -->
-<p>¿No tienes una cuenta mayorista? <a href="{% url 'users:acceso_mayoristas' %}">Regístrate aquí</a></p>
-<p><a href="{% url 'users:password_reset' %}">¿Olvidaste tu contraseña?</a></p>
+<div class="container py-5">
+    <div class="row justify-content-center align-items-center py-5">
+        <div class="col-sm-10 col-md-7 col-lg-5 col-xl-4">
+            
+            <div class="card shadow border-0 rounded-4 p-4 p-md-5 bg-white">
+                <div class="text-center mb-4">
+                    <span class="text-uppercase fw-bold tracking-wider small mb-1 d-inline-block" style="color: var(--color-primario, #8796AA); letter-spacing: 2px;">Mayoristas</span>
+                    <h2 class="fw-bold text-dark mb-0">Iniciar Sesión</h2>
+                </div>
+                
+                <form method="post" id="form-login">
+                    {% csrf_token %}
+                    
+                    <div id="django-form-fields" class="mb-4">
+                        {{ form }}
+                    </div>
+                    
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-lg text-white rounded-3 shadow-sm text-uppercase fw-bold py-3 fs-6" style="background-color: var(--color-primario, #8796AA); letter-spacing: 1px;">
+                            Iniciar Sesión
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-3 pt-3 border-top text-secondary small" style="font-size: 0.85rem; line-height: 1.6;">
+                    <p class="mb-2">
+                        ¿No tenes una cuenta mayorista? <br>
+                        <a href="{% url 'users:acceso_mayoristas' %}" class="fw-bold text-decoration-none" style="color: var(--color-primario, #8796AA);">Regístrate aquí</a>
+                    </p>
+                    <p>Si olvidaste tu contrseña, ponte en contacto con nosotros</p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const formFields = document.querySelectorAll('#django-form-fields input');
+        formFields.forEach(field => {
+            field.classList.add('form-control', 'mb-3');
+            field.style.borderColor = 'rgba(135, 150, 170, 0.3)';
+            field.style.borderRadius = '8px';
+            field.style.padding = '11px 14px';
+            
+            field.addEventListener('focus', () => {
+                field.style.borderColor = 'var(--color-primario, #8796AA)';
+                field.style.boxShadow = '0 0 0 0.25rem rgba(135, 150, 170, 0.15)';
+            });
+            field.addEventListener('blur', () => {
+                field.style.borderColor = 'rgba(135, 150, 170, 0.3)';
+                field.style.boxShadow = 'none';
+            });
+        });
+    });
+</script>
 {% endblock content %}

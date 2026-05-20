@@ -12,18 +12,20 @@
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item"><a class="nav-link" href="{% url 'products:catalogo_generos' %}">Catálogo</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'products:catalogo_generos' %}">Catálogos</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'products:genero_detalle' "Hombre" %}">Hombre</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'products:genero_detalle' "Mujer" %}">Mujer</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'core:about' %}">Sobre Nosotros</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'users:acceso_mayoristas' %}">Acceso Mayoristas</a></li>
         
         {% if user.is_authenticated %}
-            <li class="nav-item"><span class="nav-link">Hola, {{ user.first_name }}!</span></li>
             <li class="nav-item">
                 <form action="{% url 'users:logout' %}" method="post" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-link nav-link text-decoration-none shadow-none">Cerrar Sesión</button>
                 </form>
             </li>
+            <li class="nav-item"><span class="nav-link">Hola, {{ user.first_name }}!</span></li>
         {% else %}
             <li class="nav-item"><a class="nav-link" href="{% url 'users:login' %}">Iniciar Sesión</a></li>
         {% endif %}

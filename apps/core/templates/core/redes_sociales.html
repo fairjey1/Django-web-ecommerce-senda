@@ -1,0 +1,44 @@
+<div class="py-5 border-top" style="background-color: #ffffff;">
+    <div class="container text-center py-4">
+        <span class="text-uppercase fw-bold tracking-wider small mb-2 d-inline-block" style="color: var(--color-primario, #8796AA); letter-spacing: 2px;">Comunidad</span>
+        <h2 class="fw-bold text-dark mb-3">Seguinos en nuestras redes</h2>
+        <p class="text-secondary mx-auto mb-5 small text-uppercase fw-semibold" style="max-width: 500px; letter-spacing: 0.5px;">
+            Sumate a nuestro universo digital y enterate primero de los nuevos ingresos.
+        </p>
+        
+        <div class="d-flex justify-content-center align-items-center gap-4 gap-sm-5">
+            <a href="{{ site_config.instagram_link }}" target="_blank" class="text-decoration-none d-flex flex-column align-items-center social-link-senda">
+                <div class="d-flex align-items-center justify-content-center rounded-circle mb-2 shadow-sm border" style="width: 75px; height: 75px; background-color: #fafafa; transition: all 0.3s ease;">
+                    <i class="bi bi-instagram fs-2" style="color: var(--senda-primary, #8796AA); transition: all 0.3s ease;"></i>
+                </div>
+                <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">@senda.indumentaria.ar</span>
+            </a>
+
+            <a href="{{ site_config.facebook_link }}" target="_blank" class="text-decoration-none d-flex flex-column align-items-center social-link-senda">
+                <div class="d-flex align-items-center justify-content-center rounded-circle mb-2 shadow-sm border" style="width: 75px; height: 75px; background-color: #fafafa; transition: all 0.3s ease;">
+                    <i class="bi bi-facebook fs-2" style="color: var(--senda-primary, #8796AA); transition: all 0.3s ease;"></i>
+                </div>
+                <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">Senda Indumentaria</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .social-link-senda {
+        transition: transform 0.3s ease;
+    }
+    .social-link-senda:hover {
+        transform: translateY(-4px);
+    }
+    .social-link-senda:hover div {
+        background-color: var(--senda-primary, #8796AA) !important;
+        border-color: var(--senda-primary, #8796AA) !important;
+    }
+    .social-link-senda:hover i {
+        color: #ffffff !important;
+    }
+    .social-link-senda:hover span {
+        color: var(--senda-primary, #8796AA) !important;
+    }
+</style>

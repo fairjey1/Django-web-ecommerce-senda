@@ -86,7 +86,7 @@ def crear_pedido(request):
                 # Lo mandamos a la app payments para que vea las instrucciones
                 return redirect('payments:instrucciones', pedido_id=pedido.id)
             else:
-                # Aquí irá MercadoPago más adelante
+                # Lo mandamos a la app payments para que procese el pago con MercadoPago
                 return redirect('payments:procesar_mercadopago', pedido_id=pedido.id)
     else:
         # Petición GET 
@@ -106,7 +106,3 @@ def crear_pedido(request):
         form = OrderCreateForm(initial=initial_data)
 
     return render(request, 'orders/pedido_crear.html', {'carrito': carrito, 'form': form})
-
-def pedido_exito(request):
-    order_id = request.session.get('order_id')
-    return render(request, 'orders/pedido_exito.html', {'order_id': order_id})
