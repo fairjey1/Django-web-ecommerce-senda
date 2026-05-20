@@ -1,306 +1,214 @@
 {% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ producto.nombre }} | SENDA{% endblock %}
 
 {% block content %}
-<nav class="breadcrumbs">
-    <a href="{% url 'products:catalogo_generos' %}">Inicio</a> / Detalle / {{ producto.nombre }}
-</nav>
-{% if producto.esta_activo %}
-<div class="producto-detalle-container">
-
-    <div class="producto-visualizacion">
-        <div class="galeria-container">
-            <div class="foto-principal">
-                {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" id="vista-previa" alt="{{ producto.nombre }}" class="img-fluida">
-                {% else %}
-                    <div class="placeholder-grande">Sin imagen</div>
-                {% endif %}
-            </div>
-
-            <div class="miniaturas-grid">
-                {# 1. Agregamos la imagen base como primera miniatura #}
-                {% if producto.imagen %}
-                    <div class="miniatura-item">
-                        <img src="{{ producto.imagen.url }}" class="img-thumb active" onclick="cambiarFoto(this)">
-                    </div>
-                {% endif %}
-
-                {# 2. Ciclo para las imágenes adicionales de la galería #}
-                {% for extra in producto.imagenes.all %}
-                    <div class="miniatura-item">
-                        <img src="{{ extra.imagen.url }}" class="img-thumb" onclick="cambiarFoto(this)">
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <script>
-    function cambiarFoto(element) {
-        // 1. Cambiamos el src de la imagen principal por el de la miniatura clickeada
-        document.getElementById('vista-previa').src = element.src;
-
-        // 2. (Opcional) Estilo visual: quitamos la clase 'active' de todas y se la ponemos a la actual
-        const todas = document.querySelectorAll('.img-thumb');
-        todas.forEach(img => img.classList.remove('active'));
-        element.classList.add('active');
-    }
-    </script>
-
-    <div class="producto-info-compra">
-        <h1 class="producto-titulo">{{ producto.nombre }}</h1>
-        
-        <div class="seccion-precios">
-            {% if request.user.is_authenticated and request.user.esta_aprobado %}
-                <span class="badge-mayorista">Precio Mayorista</span>
-                {% if producto.precio_promocional_mayorista %}
-                    <p class="precio-tachado">${{ producto.precio_mayorista }}</p>
-                    <p class="precio-destacado">${{ producto.precio_promocional_mayorista }}</p>
-                {% else %}
-                    <p class="precio-final">${{ producto.precio_mayorista }}</p>
-                {% endif %}
-            
-            {% else %}
-                {% if producto.precio_promocional_minorista %}
-                    <p class="precio-tachado">${{ producto.precio_minorista }}</p>
-                    <p class="precio-destacado">${{ producto.precio_promocional_minorista }}</p>
-                {% else %}
-                    <p class="precio-final">${{ producto.precio_minorista }}</p>
-                {% endif %}
-            {% endif %}
-        </div>
-
-        <div class="producto-descripcion">
-            <h3>Descripción</h3>
-            <p>{{ producto.descripcion }}</p>
-        </div>
-
-        {{ stock_por_variante|json_script:"stock-data" }}
-
-        <script type="application/json" id="variantes-json">
-            [
-                {% for v in variantes %}
-                {
-                    "id": {{ v.id }},
-                    "color_id": "{{ v.color.id }}",
-                    "talle": "{{ v.talle|escapejs }}",
-                    "stock": {{ v.cantidad_stock }}
-                }{% if not forloop.last %},{% endif %}
-                {% endfor %}
-            ]
-        </script>
-
-        <form id="form-carrito" method="POST" action="#" class="form-seleccion-variante">
-            {% csrf_token %}
-            
-            <div class="grupo-seleccion">
-                <label><strong>Color:</strong></label>
-                <div class="botones-container">
-                    {% for color in colores_unicos %}
-                        <label class="btn-check">
-                            <input type="radio" name="color_sel" value="{{ color.id }}" class="radio-variante">
-                            <span>{{ color.nombre }}</span>
-                        </label>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="grupo-seleccion" style="margin-top: 15px;">
-                <label><strong>Talle:</strong></label>
-                <div class="botones-container">
-                    {% for talle in talles_unicos %}
-                        <label class="btn-check">
-                            <input type="radio" name="talle_sel" value="{{ talle }}" class="radio-variante">
-                            <span>{{ talle }}</span>
-                        </label>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div id="seccion-compra" style="margin-top: 25px; display: none;">
-                <div style="display: flex; align-items: center; gap: 20px;">
-                    <div>
-                        <label><strong>Cantidad:</strong></label>
-                        <div class="contador-container" style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
-                            <button type="button" onclick="ajustarCantidad(-1)">-</button>
-                            <input type="number" id="input-cantidad" name="cantidad" value="1" min="1" readonly style="width: 50px; text-align: center;">
-                            <button type="button" onclick="ajustarCantidad(1)">+</button>
-                        </div>
-                    </div>
-                    <div>
-                        <p id="stock-disponible" style="margin: 0; color: #666;"></p>
-                    </div>
-                </div>
-            </div>
-
-            <input type="hidden" name="variante_id" id="variante-id-final">
-
-            <button type="submit" id="btn-carrito" disabled style="margin-top: 20px; padding: 10px 30px;">
-                Agregar al Carrito
-            </button>
-        </form>
+<div class="container-fluid bg-white py-3 border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small text-uppercase" style="letter-spacing: 1px;">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-muted text-decoration-none">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'products:catalogo_generos' %}" class="text-muted text-decoration-none">Catálogo</a></li>
+                <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">{{ producto.nombre }}</li>
+            </ol>
+        </nav>
     </div>
 </div>
-{% else %}
-    <div class="producto-inactivo">
-        <h2>Producto no disponible</h2>
-        <p>Lo sentimos, este producto no está activo en este momento.</p>
-    </div>
-{% endif %}
-<section class="productos-relacionados" style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 30px;">
-    <h2 class="section-title">También te podría interesar</h2>
-    
-    <div class="productos-grid" style="display: flex; gap: 20px; flex-wrap: wrap;">
-        {% for relacionado in productos_relacionados %}
-            <div class="producto-card-mini" style="width: 200px; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
-                <a href="{% url 'products:producto_detalle' relacionado.pk %}" style="text-decoration: none; color: inherit;">
-                    {% if relacionado.imagen %}
-                        <img src="{{ relacionado.imagen.url }}" alt="{{ relacionado.nombre }}" style="width: 100%; border-radius: 4px;">
-                    {% else %}
-                        <div class="placeholder-mini" style="height: 150px; background: #f4f4f4;">Sin Foto</div>
-                    {% endif %}
-                    
-                    <h4 style="margin: 10px 0 5px 0; font-size: 0.9em;">{{ relacionado.nombre }}</h4>
-                    
-                    <div class="precios-relacionados">
-                        {% if request.user.is_authenticated and request.user.esta_aprobado %}
-                            {% if relacionado.precio_promocional_mayorista %}
-                                <p style="color: red; font-weight: bold; margin: 0;">${{ relacionado.precio_promocional_mayorista }}</p>
-                            {% else %}
-                                <p style="font-weight: bold; margin: 0;">${{ relacionado.precio_mayorista }}</p>
-                            {% endif %}
-                        {% else %}
-                            {% if relacionado.precio_promocional_minorista %}
-                                <p style="color: red; font-weight: bold; margin: 0;">${{ relacionado.precio_promocional_minorista }}</p>
-                            {% else %}
-                                <p style="font-weight: bold; margin: 0;">${{ relacionado.precio_minorista }}</p>
-                            {% endif %}
-                        {% endif %}
-                    </div>
-                </a>
-            </div>
-        {% empty %}
-            <p class="empty-message">No hay productos relacionados por el momento.</p>
-        {% endfor %}
-    </div>
-</section>
-<script type="application/json" id="variantes-data">
-    [
-        {% for v in variantes %}
-        {
-            "id": {{ v.id }},
-            "color_id": "{{ v.color.id }}",
-            "talle": "{{ v.talle|escapejs }}",
-            "stock": {{ v.cantidad_stock }}
-        }{% if not forloop.last %},{% endif %}
-        {% endfor %}
-    ]
-</script>
-<script>
-    const variantes = JSON.parse(document.getElementById('variantes-json').textContent);
-    const inputCant = document.getElementById('input-cantidad');
-    const displayStock = document.getElementById('stock-disponible');
-    const seccionCompra = document.getElementById('seccion-compra');
-    const btnCarrito = document.getElementById('btn-carrito');
-    const inputFinal = document.getElementById('variante-id-final');
 
-    // --- NUEVO: Rastreadores para permitir "des-seleccionar" ---
+<div class="container py-5">
+    <div class="row g-4 g-lg-5">
+        
+        <div class="col-12 col-md-7">
+            <div class="main-image-container border shadow-sm mb-3">
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" id="vista-previa" alt="{{ producto.nombre }}">
+                {% else %}
+                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted">Sin imagen</div>
+                {% endif %}
+            </div>
+            
+            <div class="d-flex flex-wrap gap-2">
+                {% if producto.imagen %}
+                    <div class="thumbnail-container active-thumb" onclick="cambiarFoto(this, '{{ producto.imagen.url }}')">
+                        <img src="{{ producto.imagen.url }}" alt="Base">
+                    </div>
+                {% endif %}
+                {% for extra in producto.imagenes.all %}
+                    <div class="thumbnail-container" onclick="cambiarFoto(this, '{{ extra.imagen.url }}')">
+                        <img src="{{ extra.imagen.url }}" alt="Extra {{ forloop.counter }}">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-12 col-md-5 ps-md-4">
+            <span class="badge bg-secondary mb-2 text-uppercase rounded-0" style="letter-spacing: 1px;">10% off con transferencia</span>
+            <span class="badge bg-success mb-2 text-uppercase rounded-0" style="letter-spacing: 1px;">Envio gratis a partir de $100.000</span>
+            <h1 class="h2 fw-bold text-uppercase mb-2" style="letter-spacing: 1px;">{{ producto.nombre }}</h1>
+            
+            <div class="price-container mb-4">
+                {% if user.is_authenticated %}
+                    {% if producto.precio_promocional_mayorista %}
+                        <p class="text-muted small mb-0"><del>$ {{ producto.precio_mayorista }}</del> <span class="badge bg-danger rounded-0 ms-2">Oferta</span></p>
+                        <h3 class="text-danger fw-bold m-0">$ {{ producto.precio_promocional_mayorista }}</h3>
+                    {% else %}
+                        <h3 class="fw-bold text-dark m-0">$ {{ producto.precio_mayorista }}</h3>
+                        <small class="text-muted text-uppercase tracking-wider" style="font-size: 0.75rem;">Lista mayorista</small>
+                    {% endif %}
+                {% else %}
+                    {% if producto.precio_promocional_minorista %}
+                        <p class="text-muted small mb-0"><del>$ {{ producto.precio_minorista }}</del> <span class="badge bg-danger   rounded-0 ms-2">Oferta</span></p>
+                        <h3 class="text-danger fw-bold m-0">$ {{ producto.precio_promocional_minorista }}</h3>
+                    {% else %}
+                        <h3 class="fw-bold text-dark m-0">$ {{ producto.precio_minorista }}</h3>
+                        <small class="text-muted text-uppercase tracking-wider" style="font-size: 0.75rem;">Lista minorista</small>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <hr class="my-4">
+
+            <form action="#" method="POST" id="form-carrito">
+                {% csrf_token %}
+                <input type="hidden" name="variante_id" id="input-variante-final" value="">
+                
+                <div class="mb-4">
+                    <label class="form-label small text-uppercase fw-bold text-muted mb-2" style="letter-spacing: 1px;">Color</label>
+                    <div class="d-flex flex-wrap align-items-center">
+                        {% for color in colores_unicos %}
+                        <div class="color-swatch-container">
+                            <input type="radio" name="color" id="color-{{ color.id }}" value="{{ color.nombre }}" class="color-radio-btn">
+                            <label for="color-{{ color.id }}" class="color-swatch-label shadow-sm" style="background-color: {{ color.codigo_hex|default:'#ccc' }};" title="{{ color.nombre }}"></label>
+                        </div>
+                        {% empty %}
+                            <p class="text-muted small">Color único libre</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small text-uppercase fw-bold text-muted mb-2" style="letter-spacing: 1px;">Talle</label>
+                    <div class="d-flex flex-wrap">
+                        {% for talle in talles_unicos %}
+                        <div class="size-swatch-container">
+                            <input type="radio" name="talle" id="talle-{{ forloop.counter }}" value="{{ talle.nombre|default:talle }}" class="size-radio-btn">
+                            <label for="talle-{{ forloop.counter }}" class="size-swatch-label rounded-0 shadow-sm">{{ talle.nombre|default:talle }}</label>
+                        </div>
+                        {% empty %}
+                            <p class="text-muted small">Talle único</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="seccion-compra" style="display: none;">
+                    <p id="display-stock" class="text-success small fw-bold text-uppercase mb-2" style="letter-spacing: 1px;"></p>
+                    
+                    <div class="mb-4">
+                        <label class="form-label small text-uppercase fw-bold text-muted mb-2" style="letter-spacing: 1px;">Cantidad</label>
+                        <div class="input-group quantity-input-group rounded-0 shadow-sm">
+                            <button class="btn btn-outline-secondary rounded-0 px-3" type="button" onclick="ajustarCantidad(-1)">-</button>
+                            <input type="number" name="cantidad" id="quantity" class="form-control text-center rounded-0 shadow-none" value="1" min="1" readonly>
+                            <button class="btn btn-outline-secondary rounded-0 px-3" type="button" onclick="ajustarCantidad(1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" id="btn-carrito" class="btn btn-dark w-100 btn-lg rounded-0 text-uppercase fw-bold shadow-sm py-3" style="letter-spacing: 2px;" disabled>
+                            <i class="fa-solid fa-bag-shopping me-2"></i> Agregar al Carrito
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            {% if producto.descripcion %}
+            <div class="mt-5 bg-light p-4 border shadow-xs">
+                <h6 class="fw-bold text-uppercase mb-3 small" style="letter-spacing: 1px;">Descripción del Producto</h6>
+                <div class="text-muted small lh-lg">
+                    {{ producto.descripcion|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    const variantesData = {{ variantes_json|safe }};
+    
+    const formCarrito = document.getElementById('form-carrito');
+    const inputFinal = document.getElementById('input-variante-final');
+    const seccionCompra = document.getElementById('seccion-compra');
+    const displayStock = document.getElementById('display-stock');
+    const inputCant = document.getElementById('quantity');
+    const btnCarrito = document.getElementById('btn-carrito');
+    
+    const colorRadios = document.querySelectorAll('.color-radio-btn');
+    const sizeRadios = document.querySelectorAll('.size-radio-btn');
+    
     let ultimoColor = null;
     let ultimoTalle = null;
 
-    const radiosColor = document.querySelectorAll('input[name="color_sel"]');
-    const radiosTalle = document.querySelectorAll('input[name="talle_sel"]');
-
-    // Escuchamos el CLICK en lugar del CHANGE en Colores
-    radiosColor.forEach(radio => {
-        radio.addEventListener('click', function(e) {
-            if (ultimoColor === this.value) {
-                // Si tocó el que ya estaba seleccionado, lo apagamos
+    // Control de clicks y des-selección para Colores
+    colorRadios.forEach(radio => {
+        radio.addEventListener('click', function() {
+            if (ultimoColor === this) {
                 this.checked = false;
                 ultimoColor = null;
             } else {
-                // Si tocó uno nuevo, actualizamos el rastreador
-                ultimoColor = this.value;
+                ultimoColor = this;
             }
             actualizarInterfaz();
         });
     });
 
-    // Escuchamos el CLICK en lugar del CHANGE en Talles
-    radiosTalle.forEach(radio => {
-        radio.addEventListener('click', function(e) {
-            if (ultimoTalle === this.value) {
+    // Control de clicks y des-selección para Talles
+    sizeRadios.forEach(radio => {
+        radio.addEventListener('click', function() {
+            if (ultimoTalle === this) {
                 this.checked = false;
                 ultimoTalle = null;
             } else {
-                ultimoTalle = this.value;
+                ultimoTalle = this;
             }
             actualizarInterfaz();
         });
     });
 
     function actualizarInterfaz() {
-        const colorSeleccionado = document.querySelector('input[name="color_sel"]:checked')?.value;
-        const talleSeleccionado = document.querySelector('input[name="talle_sel"]:checked')?.value;
+        let colorSel = document.querySelector('input[name="color"]:checked');
+        let talleSel = document.querySelector('input[name="talle"]:checked');
+        
+        let colorActual = colorSel ? colorSel.value : null;
+        let talleActual = talleSel ? talleSel.value : null;
 
-        // --- 1. LÓGICA DE INHABILITACIÓN DE TALLES SEGÚN COLOR ---
-        radiosTalle.forEach(radio => {
-            if (colorSeleccionado) {
-                const tieneStock = variantes.some(v => v.color_id == colorSeleccionado && v.talle == radio.value && v.stock > 0);
-                
-                if (tieneStock) {
-                    radio.disabled = false;
-                    radio.parentElement.classList.remove('disabled');
-                } else {
-                    radio.disabled = true;
-                    radio.parentElement.classList.add('disabled');
-                    if (radio.checked) {
-                        radio.checked = false;
-                        ultimoTalle = null; // Sincronizamos el rastreador si el script lo apaga
-                    }
-                }
-            } else {
-                radio.disabled = false;
-                radio.parentElement.classList.remove('disabled');
-            }
-        });
+        // Resetear deshabilitados
+        document.querySelectorAll('input[type="radio"]').forEach(r => r.disabled = false);
 
-        // --- 2. LÓGICA DE INHABILITACIÓN DE COLORES SEGÚN TALLE ---
-        radiosColor.forEach(radio => {
-            if (talleSeleccionado) {
-                const tieneStock = variantes.some(v => v.color_id == radio.value && v.talle == talleSeleccionado && v.stock > 0);
-                
-                if (tieneStock) {
-                    radio.disabled = false;
-                    radio.parentElement.classList.remove('disabled');
-                } else {
-                    radio.disabled = true;
-                    radio.parentElement.classList.add('disabled');
-                    if (radio.checked) {
-                        radio.checked = false;
-                        ultimoColor = null; // Sincronizamos el rastreador si el script lo apaga
-                    }
-                }
-            } else {
-                radio.disabled = false;
-                radio.parentElement.classList.remove('disabled');
-            }
-        });
+        // Bloqueo cruzado inteligente basado en variantesData
+        if (colorActual) {
+            let tallesValidos = variantesData.filter(v => v.color === colorActual && v.stock > 0).map(v => v.talle);
+            sizeRadios.forEach(radio => {
+                if (!tallesValidos.includes(radio.value)) radio.disabled = true;
+            });
+        }
 
-        // --- 3. LÓGICA DE STOCK Y CONTADOR ---
-        const colorFinal = document.querySelector('input[name="color_sel"]:checked')?.value;
-        const talleFinal = document.querySelector('input[name="talle_sel"]:checked')?.value;
-        const formCarrito = document.getElementById('form-carrito'); // Seleccionamos el form
+        if (talleActual) {
+            let coloresValidos = variantesData.filter(v => v.talle === talleActual && v.stock > 0).map(v => v.color);
+            colorRadios.forEach(radio => {
+                if (!coloresValidos.includes(radio.value)) radio.disabled = true;
+            });
+        }
 
-        if (colorFinal && talleFinal) {
-            const encontrado = variantes.find(v => v.color_id == colorFinal && v.talle == talleFinal);
+        // Validación de variante final y stock seguro
+        if (colorActual && talleActual) {
+            let encontrado = variantesData.find(v => v.color === colorActual && v.talle === talleActual);
 
             if (encontrado && encontrado.stock > 0) {
                 seccionCompra.style.display = 'block';
-                displayStock.innerText = `Stock: ${encontrado.stock} unidades`;
+                displayStock.innerText = `En Stock: ${encontrado.stock} unidades`;
                 inputCant.max = encontrado.stock;
                 
-                // Solo reseteamos a 1 si el valor actual es mayor al nuevo stock máximo
                 if (parseInt(inputCant.value) > encontrado.stock) {
                     inputCant.value = 1;
                 }
@@ -308,28 +216,38 @@
                 inputFinal.value = encontrado.id;
                 btnCarrito.disabled = false;
 
-                // MAGIA DEL CARRITO: Actualizamos la URL dinámicamente
-                // Django genera una url base con el ID '0' y JS lo reemplaza por el ID real
-                let urlBase = "{% url 'cart:agregar_al_carrito' 0 %}";
+                // Reemplazo dinámico de la URL del carrito
+                let urlBase = "/cart/agregar/0/"; 
                 formCarrito.action = urlBase.replace('0', encontrado.id);
             }
         } else {
             seccionCompra.style.display = 'none';
             btnCarrito.disabled = true;
-            // Si des-selecciona, rompemos la URL por seguridad
-            formCarrito.action = "#"; 
+            formCarrito.action = "#";
         }
     }
 
-    function ajustarCantidad(cambio) {
-        let actual = parseInt(inputCant.value);
-        let maximo = parseInt(inputCant.max);
+    // Galería interactiva de imágenes
+    window.cambiarFoto = function(thumbnailElement, imageUrl) {
+        document.getElementById('vista-previa').src = imageUrl;
+        document.querySelectorAll('.thumbnail-container').forEach(thumb => {
+            thumb.classList.remove('active-thumb');
+        });
+        thumbnailElement.classList.add('active-thumb');
+    }
+
+    // Contador de cantidad seguro
+    window.ajustarCantidad = function(cambio) {
+        let actual = parseInt(inputCant.value) || 1;
+        let maximo = parseInt(inputCant.max) || 1;
         let nuevo = actual + cambio;
         
         if (nuevo >= 1 && nuevo <= maximo) {
             inputCant.value = nuevo;
         }
     }
-    
+
+    // Iniciar verificación inicial
+    actualizarInterfaz();
 </script>
-{% endblock %}
+{% endblock content %}
