@@ -1,95 +1,144 @@
 {% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Mi Carrito | SENDA{% endblock %}
 
 {% block content %}
-<div class="carrito-container">
-    <h1 class="carrito-titulo">Tu Carrito de Compras</h1>
+<div class="container py-5">
+    <h1 class="mb-5 text-center fw-bold" style="color: var(--color-primario, #8796AA);">Tu Carrito de Compras</h1>
 
     {% if carrito|length > 0 %}
-        <div class="carrito-contenido">
-            <table class="carrito-tabla">
-                <thead class="carrito-cabecera">
-                    <tr>
-                        <th>Producto</th>
-                        <th>Variante (Talle/Color)</th>
-                        <th>Precio Unitario</th>
-                        <th>Cantidad</th>
-                        <th>Subtotal</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody class="carrito-cuerpo">
-                    {% for item in carrito %}
-                        <tr class="carrito-item">
-                            <td class="item-nombre">
-                                {{ item.variante.producto.nombre }}
-                            </td>
-                            <td class="item-variante">
-                                Talle: {{ item.variante.talle }} <br>
-                                Color: {{ item.variante.color.nombre }}
-                            </td>
-                            <td class="item-precio">
-                                ${{ item.precio }}
-                            </td>
-                            <td class="item-cantidad">
-                                <form action="{% url 'cart:actualizar_carrito' item.variante.id %}" method="POST" style="display: flex; gap: 5px; align-items: center;">
-                                    {% csrf_token %}
+    <div class="row gy-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-3 rounded-4 overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 text-center">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th scope="col" class="ps-4 text-start">Producto</th>
+                                    <th scope="col">Precio Unitario</th>
+                                    <th scope="col">Cantidad</th>
+                                    <th scope="col">Subtotal</th>
+                                    <th scope="col" class="pe-4">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in carrito %}
+                                <tr>
+                                    <td class="ps-4 text-start">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <h6 class="mb-1 fw-bold text-dark">{{ item.variante.producto.nombre }}</h6>
+                                                <small class="text-muted d-block">
+                                                    <strong>Talle:</strong> {{ item.variante.talle }} <br>
+                                                    <strong>Color:</strong> {{ item.variante.color.nombre }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
                                     
-                                    <input type="number" name="cantidad" value="{{ item.cantidad }}" min="1" max="{{ item.variante.cantidad_stock }}" style="width: 60px; text-align: center; padding: 5px;">
+                                    <td>${{ item.precio }}</td>
                                     
-                                    <button type="submit" class="btn-actualizar" style="padding: 5px 10px; cursor: pointer;">
-                                        Actualizar
-                                    </button>
-                                </form>
-                            </td>
-                            <td class="item-subtotal">
-                                ${{ item.precio_total }}
-                            </td>
-                            <td class="item-accion">
-                                <a href="{% url 'cart:eliminar_del_carrito' item.variante.id %}" class="btn-eliminar">Quitar</a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div style="margin-top: 20px;">
-            <a href="{% url 'cart:limpiar_carrito' %}">
-                Vaciar todo el carrito
-            </a>
-        </div>        
-
-        <div class="carrito-resumen">
-
-            {% if not carrito.cumple_minimo_mayorista %}
-                <div class="alerta-minimo-mayorista">
-                    <p><strong>Aviso para Mayoristas:</strong> El monto mínimo de compra es de $50,000.</p>
-                    <p>Te faltan agregar más artículos para poder finalizar tu pedido.</p>
+                                    <td>
+                                        <form action="{% url 'cart:actualizar_carrito' item.variante.id %}" method="POST" class="d-flex justify-content-center align-items-center">
+                                            {% csrf_token %}
+                                            <input type="number" name="cantidad" value="{{ item.cantidad }}" min="1" max="{{ item.variante.cantidad_stock }}" class="form-control form-control-sm text-center mx-1 shadow-none" style="width: 70px; border-color: var(--color-primario, #8796AA);" title="Stock disponible: {{ item.variante.cantidad_stock }}">
+                                            <button type="submit" class="btn btn-sm text-white" style="background-color: var(--color-primario, #8796AA);" title="Actualizar">
+                                                Actualizar
+                                            </button>
+                                        </form>
+                                    </td>
+                                    
+                                    <td class="fw-bold text-dark">${{ item.precio_total }}</td>
+                                    
+                                    <td class="pe-4">
+                                        <a href="{% url 'cart:eliminar_del_carrito' item.variante.id %}" class="btn btn-sm btn-outline-danger" title="Quitar">
+                                            Quitar
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <button class="btn-pago disabled" disabled>Proceder al Pago</button>
-            {% else %}
-                <a href="{% url 'cart:pre_checkout' %}" class="btn-pago">Proceder al Pago</a>
-            {% endif %}
-
-            <p>Costo de Envío a Domicilio (Estimado): 
-                {% if costo_envio == 0 %}
-                    <span style="color: green;">¡GRATIS!</span>
-                {% else %}
-                    ${{ costo_envio }}
-                    <p>Te faltan {{ carrito.get_total_faltante_envio_gratis }} para obtener envío gratis!</p>
-                {% endif %}
-            </p>
-
-            <h2 class="resumen-total">Total: ${{ carrito.get_total_final }}</h2>
-
-            <a href="{% url 'products:catalogo_generos' %}" class="btn-seguir-comprando">Seguir Comprando</a>
+            </div>
+            
+            <div class="text-start ps-2">
+                <a href="{% url 'cart:limpiar_carrito' %}" class="text-danger text-decoration-none small fw-bold">
+                    <i class="bi bi-trash"></i> Vaciar todo el carrito
+                </a>
+            </div>
         </div>
 
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4" style="background-color: #fafafa;">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-4 fw-bold" style="color: var(--color-primario, #8796AA);">Resumen de Compra</h4>
+                    
+                    <div class="mb-3">
+                        <p class="mb-2 text-muted fw-semibold">Envío a Domicilio (Estimado):</p>
+                        {% if costo_envio == 0 %}
+                            <div class="badge bg-success bg-opacity-10 text-success border border-success p-2 w-100 fs-6 rounded-3">
+                                <i class="bi bi-truck me-1"></i> ¡GRATIS!
+                            </div>
+                        {% else %}
+                            <div class="d-flex justify-content-between align-items-center fw-bold text-dark mb-2">
+                                <span>Costo:</span>
+                                <span>${{ costo_envio }}</span>
+                            </div>
+                            <div class="alert px-3 py-2 mt-2 mb-0 rounded-3 text-center" style="background-color: rgba(240, 220, 150, 0.2); border: 1px solid var(--color-secundario, rgb(240, 220, 150)); color: #856404; font-size: 0.85rem;">
+                                ¡Te faltan <strong>${{ carrito.get_total_faltante_envio_gratis }}</strong> para obtener envío gratis!
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <hr class="text-muted">
+                    
+                    <div class="d-flex justify-content-between align-items-center fw-bold my-4">
+                        <span class="fs-5">Total</span>
+                        <span class="fs-3 text-dark">${{ carrito.get_total_final }}</span>
+                    </div>
+
+                    {% if not carrito.cumple_minimo_mayorista %}
+                        <div class="alert alert-danger px-3 py-2 text-center rounded-3 mb-4 fs-6">
+                            <i class="bi bi-exclamation-triangle-fill"></i> <strong>Aviso Mayorista:</strong><br>
+                            El monto mínimo de compra es de $50.000<br>
+                            <small>Te faltan artículos para poder finalizar tu pedido.</small>
+                        </div>
+                        <div class="d-grid gap-3">
+                            <button class="btn btn-lg btn-secondary rounded-3 text-uppercase fw-bold shadow-sm" disabled>
+                                Proceder al Pago
+                            </button>
+                            <a href="{% url 'products:catalogo_generos' %}" class="btn btn-outline-secondary rounded-3 text-uppercase fw-bold">
+                                Seguir Comprando
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="d-grid gap-3">
+                            <a href="{% url 'cart:pre_checkout' %}" class="btn btn-lg text-white rounded-3 shadow-sm text-uppercase fw-bold" style="background-color: var(--color-primario, #8796AA); letter-spacing: 1px;">
+                                Proceder al Pago
+                            </a>
+                            <a href="{% url 'products:catalogo_generos' %}" class="btn btn-outline-secondary rounded-3 text-uppercase fw-bold" style="letter-spacing: 1px;">
+                                Seguir Comprando
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
     {% else %}
-        <div class="carrito-vacio">
-            <p>Aún no has agregado ninguna prenda a tu pedido.</p>
-            <a href="{% url 'products:catalogo_generos' %}" class="btn-seguir-comprando">Ir al Catálogo</a>
-        </div>
+    <div class="text-center py-5">
+        <i class="bi bi-bag-x" style="font-size: 5rem; color: var(--color-secundario, rgb(240, 220, 150));"></i>
+        <h3 class="text-muted mt-4 mb-3">Tu carrito está vacío</h3>
+        <p class="mb-4 text-secondary">Aún no has agregado ninguna prenda a tu pedido.</p>
+        <a href="{% url 'products:catalogo_generos' %}" class="btn text-white px-5 py-3 rounded-pill text-uppercase fw-bold shadow" style="background-color: var(--color-primario, #8796AA); letter-spacing: 1px;">
+            Ir al Catálogo
+        </a>
+    </div>
     {% endif %}
-
 </div>
 {% endblock %}
