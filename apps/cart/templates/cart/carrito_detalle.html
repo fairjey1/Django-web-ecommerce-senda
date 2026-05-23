@@ -45,7 +45,7 @@
                                             {% csrf_token %}
                                             <input type="number" name="cantidad" value="{{ item.cantidad }}" min="1" max="{{ item.variante.cantidad_stock }}" class="form-control form-control-sm text-center mx-1 shadow-none" style="width: 70px; border-color: var(--color-primario, #8796AA);" title="Stock disponible: {{ item.variante.cantidad_stock }}">
                                             <button type="submit" class="btn btn-sm text-white" style="background-color: var(--color-primario, #8796AA);" title="Actualizar">
-                                                Actualizar
+                                                <i class="bi bi-arrow-repeat"></i>
                                             </button>
                                         </form>
                                     </td>
@@ -54,7 +54,7 @@
                                     
                                     <td class="pe-4">
                                         <a href="{% url 'cart:eliminar_del_carrito' item.variante.id %}" class="btn btn-sm btn-outline-danger" title="Quitar">
-                                            Quitar
+                                            <i class="bi bi-trash"></i>
                                         </a>
                                     </td>
                                 </tr>
