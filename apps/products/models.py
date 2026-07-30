@@ -122,6 +122,24 @@ class VarianteProducto(models.Model):
 
     def __str__(self):
         return f"{self.sku} - {self.producto.nombre} - {self.color.nombre} - Talle {self.talle}" 
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        
+        producto_padre = self.producto
+        
+        resultado_stock = producto_padre.variantes.aggregate(total=models.Sum('cantidad_stock'))
+        total_stock = resultado_stock['total'] or 0
+
+        if total_stock == 0:
+            # Si el acumulado total de prendas de todos los talles/colores dio 0, apagamos el producto
+            if producto_padre.esta_activo:
+                producto_padre.esta_activo = False
+                producto_padre.save(update_fields=['esta_activo'])
+        else:
+            if not producto_padre.esta_activo:
+                producto_padre.esta_activo = True
+                producto_padre.save(update_fields=['esta_activo'])
 
 class ProductoImagen(models.Model):
     '''

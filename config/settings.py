@@ -32,12 +32,9 @@ DEBUG = os.getenv('DEBUG') == 'True'
 
 RAILWAY_URL = os.getenv('RAILWAY_PUBLIC_DOMAIN', 'localhost')
 
-ALLOWED_HOSTS = [RAILWAY_URL, '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*', 'localhost']
 
-if RAILWAY_URL != 'localhost':
-    ALLOWED_HOSTS.append(f"{RAILWAY_URL}")
-
-CSRF_TRUSTED_ORIGINS = [f"https://{RAILWAY_URL}"] if RAILWAY_URL != 'localhost' else []
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
 
 
 # Application definition

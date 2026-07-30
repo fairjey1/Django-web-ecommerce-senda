@@ -1,3 +1,5 @@
+import os
+
 from django.shortcuts import render, get_object_or_404
 import mercadopago
 from django.conf import settings
@@ -58,7 +60,7 @@ def procesar_mercadopago(request, pedido_id):
         })
 
     #host = request.build_absolute_uri('/')[:-1]
-    host = "https://juicy-canary-circulate.ngrok-free.dev"
+    host = os.environ.get('RAILWAY_PUBLIC_DOMAIN', 'http://localhost:8000')
 
     preference_data = {
         "items": items_mp,
