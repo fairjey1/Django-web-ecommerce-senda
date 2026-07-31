@@ -16,6 +16,15 @@ class SiteConfiguration(models.Model):
     instagram_link = models.URLField(blank=True, null=True)
     facebook_link = models.URLField(blank=True, null=True)
 
+    # Configuración de Compras
+    minimo_compra_mayorista = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        default=50000.00,
+        verbose_name="Mínimo de compra mayorista",
+        help_text="Monto mínimo en pesos requerido para pedidos mayoristas."
+    )
+
     class Meta:
         verbose_name = "Configuración del Sitio"
         verbose_name_plural = "Configuraciones del Sitio"

@@ -104,7 +104,7 @@
                     {% if not carrito.cumple_minimo_mayorista %}
                         <div class="alert alert-danger px-3 py-2 text-center rounded-3 mb-4 fs-6">
                             <i class="bi bi-exclamation-triangle-fill"></i> <strong>Aviso Mayorista:</strong><br>
-                            El monto mínimo de compra es de $50.000<br>
+                            El monto mínimo de compra es de <strong>${{ carrito.get_minimo_compra_mayorista }}</strong><br>
                             <small>Te faltan artículos para poder finalizar tu pedido.</small>
                         </div>
                         <div class="d-grid gap-3">

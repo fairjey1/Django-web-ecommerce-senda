@@ -6,6 +6,11 @@ from django.views import View
 from django.views.generic import DetailView
 
 from django.db import models
+
+from apps.core.models import SiteConfiguration
+from apps.payments.models import ConfiguracionPagos
+from apps.shipping.models import ConfiguracionEnvio
+
 from .models import Categoria, Producto, Genero
 
 from django.core.paginator import Paginator
@@ -166,5 +171,12 @@ class ProductoDetailView(DetailView):
             id=producto_actual.id
         ).distinct()[:4]
         context['productos_relacionados'] = productos_relacionados
+
+        config_envio = ConfiguracionEnvio.load()
+        config_pagos = ConfiguracionPagos.load()
+
+        context['minimo_envio_gratis'] = config_envio.minimo_compra_envio_gratis
+        context['descuento_transferencia'] = config_pagos.descuento_transferencia or 0
         
         return context
+    

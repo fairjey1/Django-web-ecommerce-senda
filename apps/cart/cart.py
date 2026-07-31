@@ -1,5 +1,6 @@
 from decimal import Decimal
 from django.conf import settings
+from apps.core.models import SiteConfiguration
 from apps.products.models import VarianteProducto
 from apps.shipping import calculator
 
@@ -93,7 +94,8 @@ class Carrito:
 
         user = self.request.user
         if user.is_authenticated and getattr(user, 'es_mayorista', False) and getattr(user, 'esta_aprobado', False):
-            MINIMO_MAYORISTA = Decimal('50000.00')
+            config = SiteConfiguration.load()
+            MINIMO_MAYORISTA = config.minimo_compra_mayorista # config global 
             return self.get_total_precio() >= MINIMO_MAYORISTA
         return True 
     
@@ -149,3 +151,7 @@ class Carrito:
             return Decimal('0.00')
         faltante = config.minimo_compra_envio_gratis - total_compra
         return faltante.quantize(Decimal('0.01'))
+    
+    def get_minimo_compra_mayorista(self):
+        config = SiteConfiguration.load()
+        return config.minimo_compra_mayorista

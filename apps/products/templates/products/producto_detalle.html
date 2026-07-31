@@ -43,8 +43,14 @@
         </div>
 
         <div class="col-12 col-md-5 ps-md-4">
-            <span class="badge bg-secondary mb-2 text-uppercase rounded-0" style="letter-spacing: 1px;">10% off con transferencia</span>
-            <span class="badge bg-success mb-2 text-uppercase rounded-0" style="letter-spacing: 1px;">Envio gratis a partir de $100.000</span>
+            {% if descuento_transferencia %}
+                <span class="badge bg-secondary mb-2 text-uppercase rounded-0" style="letter-spacing: 1px;">{{ descuento_transferencia }}% off con transferencia</span>
+            {% endif %}
+
+            {% if minimo_envio_gratis %}
+                <span class="badge bg-success mb-2 text-uppercase rounded-0" style="letter-spacing: 1px;">Envío gratis a partir de ${{ minimo_envio_gratis }}</span>
+            {% endif %}
+            
             <h1 class="h2 fw-bold text-uppercase mb-2" style="letter-spacing: 1px;">{{ producto.nombre }}</h1>
             
             <div class="price-container mb-4">
