@@ -1,6 +1,7 @@
 import os
 
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 import mercadopago
 from django.conf import settings
 from django.shortcuts import redirect
@@ -60,9 +61,6 @@ def procesar_mercadopago(request, pedido_id):
             "currency_id": "ARS"
         })
 
-    #host = request.build_absolute_uri('/')[:-1]
-    host = os.environ.get('RAILWAY_PUBLIC_DOMAIN', 'http://localhost:8000')
-
     preference_data = {
         "items": items_mp,
         "payer": {
@@ -71,12 +69,12 @@ def procesar_mercadopago(request, pedido_id):
             "email": pedido.email,
         },
         "back_urls": {
-            "success": f"{host}/payments/mp/exito/",
-            "failure": f"{host}/payments/mp/fallo/",
-            "pending": f"{host}/payments/mp/pendiente/"
+            "success": request.build_absolute_uri(reverse('/payments/mp/exito/')),
+            "failure": request.build_absolute_uri(reverse('/payments/mp/fallo/')),
+            "pending": request.build_absolute_uri(reverse('/payments/mp/pendiente/'))
         },
         "auto_return": "approved",
-        "notification_url": f"{host}/payments/webhook/",
+        "notification_url": request.build_absolute_uri(reverse('/payments/webhook/')),
         "external_reference": str(pedido.id) # id de pedido
     }
 
@@ -84,10 +82,6 @@ def procesar_mercadopago(request, pedido_id):
     preference_response = sdk.preference().create(preference_data)
     preference = preference_response["response"]
     
-    # 🚨 NUEVO: Imprimimos la respuesta en la consola para ver qué dice MercadoPago
-    print("================ RESUMEN DE MERCADO PAGO ================")
-    print(preference_response)
-    print("=========================================================")
 
     # 6. Redirigimos al usuario a la pasarela de pago (Con manejo de errores)
     # Verificamos si MercadoPago nos devolvió un estado 201 (Creado exitosamente)
