@@ -77,8 +77,12 @@ class Pedido(models.Model):
 
     def get_total_costo(self):
         """Calcula el costo total sumando los items."""
+        if not self.pk:
+            return 0.00
         subtotal = sum(item.get_costo() for item in self.items.all())
-        return (subtotal + self.costo_envio) - self.descuento
+        costo_envio = self.costo_envio if self.costo_envio else 0
+        descuento = self.descuento if self.descuento else 0
+        return (subtotal + costo_envio) - descuento
 
 
 class ItemPedido(models.Model):

@@ -88,15 +88,17 @@
                     <ul class="list-group list-group-flush mb-4 bg-transparent">
                         <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 border-light text-secondary small">
                             Costo de Envío (Estimado)
-                            {% if costo_envio == 0 %}
-                                <span class="text-success fw-bold">¡GRATIS!</span>
-                            {% else %}
-                                <span class="fw-semibold text-dark">${{ costo_envio }}</span>
-                            {% endif %}
+                            <span id="display-costo-envio">
+                                {% if costo_envio == 0 %}
+                                    <span class="text-success fw-bold">¡GRATIS!</span>
+                                {% else %}
+                                    <span class="fw-semibold text-dark">${{ costo_envio }}</span>
+                                {% endif %}
+                            </span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 fw-bold border-bottom-0 pb-0 mt-2">
                             <span class="fs-5 text-dark">Total a Pagar</span>
-                            <span class="fs-4" style="color: var(--color-primario, #8796AA);">${{ carrito.get_total_final }}</span>
+                            <span class="fs-4" id="display-total" style="color: var(--color-primario, #8796AA);">${{ carrito.get_total_final }}</span>
                         </li>
                     </ul>
 
@@ -139,6 +141,50 @@
                 field.style.boxShadow = 'none';
             });
         });
+        
+        const costoEnvioOriginal = parseFloat("{{ costo_envio }}".replace(',', '.')) || 0;
+        const totalOriginal = parseFloat("{{ carrito.get_total_final }}".replace(',', '.')) || 0;
+
+        const displayCostoEnvio = document.getElementById('display-costo-envio');
+        const displayTotal = document.getElementById('display-total');
+
+        const nombreCampoEnvio = 'metodo_entrega'; 
+
+        const elementosEnvio = document.querySelectorAll(`[name="${nombreCampoEnvio}"]`);
+
+        if (elementosEnvio.length > 0) {
+            const actualizarTotales = () => {
+                let valorSeleccionado = '';
+
+                if (elementosEnvio[0].type === 'radio') {
+                    const radioActivo = document.querySelector(`[name="${nombreCampoEnvio}"]:checked`);
+                    if (radioActivo) valorSeleccionado = radioActivo.value;
+                } else {
+                    valorSeleccionado = elementosEnvio[0].value;
+                }
+                
+                const esRetiroLocal = valorSeleccionado.toLowerCase().includes('retiro') || valorSeleccionado.toLowerCase().includes('local');
+                
+                if (esRetiroLocal) {
+                    displayCostoEnvio.innerHTML = '<span class="text-success fw-bold">¡GRATIS!</span>';
+                    const nuevoTotal = totalOriginal - costoEnvioOriginal;
+                    displayTotal.textContent = '$' + nuevoTotal.toFixed(2).replace('.', ',');
+                } else {
+                    if (costoEnvioOriginal === 0) {
+                        displayCostoEnvio.innerHTML = '<span class="text-success fw-bold">¡GRATIS!</span>';
+                    } else {
+                        displayCostoEnvio.innerHTML = '<span class="fw-semibold text-dark">$' + costoEnvioOriginal.toFixed(2).replace('.', ',') + '</span>';
+                    }
+                    displayTotal.textContent = '$' + totalOriginal.toFixed(2).replace('.', ',');
+                }
+            };
+
+            elementosEnvio.forEach(elemento => {
+                elemento.addEventListener('change', actualizarTotales);
+            });
+            
+            actualizarTotales();
+        }
     });
 </script>
 {% endblock %}

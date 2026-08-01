@@ -21,7 +21,11 @@
             <div class="col-12 col-lg-6">
                 <a href="{% url 'products:catalogo_generos' %}" class="d-block">
                 <div class="shadow-sm w-100 hero-img-container">
-                    <img src="{% static 'img/hero.webp' %}" alt="Campaña SENDA" class="w-100 h-100" style="object-fit: cover; object-position: center;">
+                    {% if site_config.hero_image %}
+                        <img src="{{ site_config.hero_image.url }}" alt="Campaña SENDA" class="w-100 h-100" style="object-fit: cover; object-position: center;">
+                    {% else %}
+                        <img src="{% static 'img/hero.webp' %}" alt="Campaña SENDA" class="w-100 h-100" style="object-fit: cover; object-position: center;">
+                    {% endif %}
                 </div>
                 </a>
             </div>

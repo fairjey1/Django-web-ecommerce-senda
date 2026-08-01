@@ -3,6 +3,8 @@ from django.contrib import admin
 from apps.orders.models import Pedido
 from django.contrib import messages
 
+from django.contrib import admin
+from .models import Pedido
 
 # Register your models here.
 
@@ -24,9 +26,16 @@ class PedidoAdmin(admin.ModelAdmin):
     # Columnas que se ven en la lista principal
     list_display = [
         'id', 'nombre', 'apellido', 'email', 
-        'estado', 'es_pedido_mayorista', 'creado', 'actualizado'
+        'estado', 'es_pedido_mayorista', 'creado', 'actualizado', 'mostrar_total'
     ]
     
+    def mostrar_total(self, obj):
+        return f"${obj.get_total_costo():.2f}"
+    
+    # Nombre de la columna que aparecerá en el encabezado de la tabla
+    mostrar_total.short_description = 'Total ($)'
+
+
     # Filtros laterales para encontrar pedidos rápido
     list_filter = ['estado', 'es_pedido_mayorista', 'creado', 'actualizado']
     

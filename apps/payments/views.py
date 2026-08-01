@@ -27,7 +27,8 @@ def instrucciones_transferencia(request, pedido_id):
     context = {
         'pedido': pedido,
         'config': config,
-        'mensaje_ws': mensaje_ws_codificado
+        'mensaje_ws': mensaje_ws_codificado,
+        'whatsapp_url': f"https://wa.me/{config.whatsapp_comprobantes}?text={mensaje_ws_codificado}"
     }
     return render(request, 'payments/transferencia_instrucciones.html', context)
 

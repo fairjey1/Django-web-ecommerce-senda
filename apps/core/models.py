@@ -6,6 +6,14 @@ from django.db import models
 class SiteConfiguration(models.Model):
     # Información General
     site_name = models.CharField(max_length=255, default="Senda Distribuidora")
+
+    hero_image = models.ImageField(
+        upload_to='site/', 
+        blank=True, 
+        null=True, 
+        verbose_name="Imagen Principal (Hero)",
+        help_text="Imagen promocional principal de la portada."
+    )
     
     # Contacto
     contact_email = models.EmailField(default="contacto@tuempresa.com")
