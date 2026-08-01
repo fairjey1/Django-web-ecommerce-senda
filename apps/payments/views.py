@@ -69,12 +69,12 @@ def procesar_mercadopago(request, pedido_id):
             "email": pedido.email,
         },
         "back_urls": {
-            "success": request.build_absolute_uri(reverse('/payments/mp/exito/')),
-            "failure": request.build_absolute_uri(reverse('/payments/mp/fallo/')),
-            "pending": request.build_absolute_uri(reverse('/payments/mp/pendiente/'))
+            "success": request.build_absolute_uri(reverse('mp_exito')),
+            "failure": request.build_absolute_uri(reverse('mp_fallo')),
+            "pending": request.build_absolute_uri(reverse('mp_pendiente'))
         },
         "auto_return": "approved",
-        "notification_url": request.build_absolute_uri(reverse('/payments/webhook/')),
+        "notification_url": request.build_absolute_uri(reverse('mp_webhook')),
         "external_reference": str(pedido.id) # id de pedido
     }
 
