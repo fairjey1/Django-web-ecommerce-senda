@@ -64,9 +64,9 @@ def procesar_mercadopago(request, pedido_id):
     preference_data = {
         "items": items_mp,
         "payer": {
-            "name": pedido.nombre,
-            "surname": pedido.apellido,
-            "email": pedido.email,
+            "name": pedido.nombre or "Cliente",
+            "surname": pedido.apellido or "Senda",
+            "email": pedido.email or "correo@ejemplo.com",
         },
         "back_urls": {
             "success": request.build_absolute_uri(reverse('mp_exito')),
